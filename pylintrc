@@ -1,0 +1,5 @@
+[BASIC]
+indent-string='\t'
+indent-after-paren=1
+
+max-line-length=80

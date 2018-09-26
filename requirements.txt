@@ -1,0 +1,5 @@
+#	Boilerplate requirements:
+pyyaml
+
+#	Project requirements:
+#	XXX: Any project-specific requirements here.
