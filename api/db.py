@@ -19,7 +19,7 @@ from sqlalchemy.ext.declarative import declarative_base as _declarative_base
 from sqlalchemy_utils import EmailType, PasswordType
 
 from .config import config
-from .errors import BadRequest
+from .errors import BadRequest, NotFound
 from .log import logger
 
 #	Create a logger.
@@ -37,13 +37,35 @@ _engine = _create_engine(
 	database_connection_str, 
 	echo=config.development.echo_sql
 )
-Model = _declarative_base()
 Session = _sessionmaker(bind=_engine)
 #	pylint: enable=invalid-name
 
-#	Define some helper functions.
-def get_uuid_primary_key():
-	'''Return a canonical UUID primary key column.'''
+#	Classes.
+class Model(_declarative_base()):
+
+	@classmethod
+	def get(cls, check_id, sess):
+		'''Return the instance of a model with the given ID or `None`.'''
+		return sess.query(cls).filter(cls.id == check_id).first()
+
+	@classmethod
+	def rest_get(cls, check_id, sess):
+		'''Return the instance of a model with the given ID or raise a 404.'''
+		inst = cls.get(check_id, sess)
+		#	Assert found.
+		if inst is None:
+			raise NotFound()
+
+		return inst
+
+	def dictize(self, user=None):
+		'''The dictization method. `user` should always be checked to ensure 
+		data exposure is okay, even if you're securing it elsewhere.'''
+		raise NotImplementedError()
+
+#	Helpers.
+def UUIDPrimaryKey(): # pylint: disable=invalid-name
+	'''A canonical UUID primary key column.'''
 	return Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
 def dictize_attrs(obj, attrs):
@@ -97,7 +119,7 @@ def with_session(meth):
 			raise ex
 	return meth_with_session_provided
 
-def apply_params_to_query(req, cls, query, allowed_orders):
+def apply_meta_params_to_query(req, cls, query, allowed_orders):
 	'''Canonically apply the query string of `req` to the given query.'''
 	#	Define a casting helper.
 	def safe_cast(val, typ):

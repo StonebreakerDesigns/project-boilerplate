@@ -5,6 +5,7 @@ falcon-cors
 werkzeug
 sqlalchemy
 psycopg2
+jinja2
 
 #	Project requirements:
 #	XXX: Any project-specific requirements here.

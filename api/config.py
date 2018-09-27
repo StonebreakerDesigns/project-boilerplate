@@ -5,9 +5,11 @@ import yaml
 
 from . import __path__ as root_path
 
+#	Exceptions.
 class ConfigKeyError(KeyError):
 	'''A missing-key error specific to the configuration object.'''
 
+#	Classes.
 class Config:
 	'''The class of the supplied configuration object.'''
 
@@ -34,6 +36,7 @@ class Config:
 	def __contains__(self, attr):
 		return attr in self.__data
 
+#	Initialization.
 def load_configuration():
 	'''Load the configuration found in `settings.json` into a friendly
 	object.'''

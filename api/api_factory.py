@@ -10,6 +10,8 @@ from falcon_multipart.middleware import MultipartMiddleware
 from .errors import InternalServerError
 from .config import config
 from .log import logger
+from .expectation import ExpectationMiddleware
+from .json_ext import JSONMiddleware
 
 def create_api(routing, routing_converters=None):
 	'''Create, configure, populate and return a falcon API object.
@@ -20,14 +22,16 @@ def create_api(routing, routing_converters=None):
 	objects. See the falcon documentation for more about in-route variable
 	conversion.
 	'''
-	#	Create an application with the configured CORS policy and multipart
-	#	form support.
+	#	Configure CORS.
 	cors_policy = CORSPolicy(
 		**config.security.cors_policy.__data # pylint: disable=protected-access
 	)
+	#	Create an application.
 	application = falcon.API(middleware=list((
 		cors_policy.middleware, 
-		MultipartMiddleware()
+		ExpectationMiddleware(),
+		MultipartMiddleware(),
+		JSONMiddleware()
 	)))
 
 	#	Create a root logger.

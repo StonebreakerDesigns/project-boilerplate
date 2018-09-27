@@ -1,0 +1,21 @@
+{% block setup %}{% endblock %}
+<html>
+	<head>
+		{% block head %}
+			<title>{{ subject }}</title>
+		{% endblock %}
+	</head>
+	<body>
+		{% block body %}
+			<div id="header">
+				{# XXX: Any common header content here. #}
+			</div>
+			<div id="content">
+				{% block content %}{% endblock %}
+			</div>
+			<div id="footer">
+				{# XXX: Any common footer content here. #}
+			</div>
+		{% endblock %}
+	</body>
+</html>
