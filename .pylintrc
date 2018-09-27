@@ -1,0 +1,11 @@
+[BASIC]
+#	Indent with tabs.
+indent-string='\t'
+indent-after-paren=1
+
+#	PEP-compliant line limits.
+max-line-length=80
+
+[MESSAGES CONTROL]
+#	Disable import orders. Use general import then surgical import blocks.
+disable=C0411

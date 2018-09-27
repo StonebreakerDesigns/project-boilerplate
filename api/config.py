@@ -23,7 +23,9 @@ class Config:
 
 		return value
 
-	def __getattribute__(self, attr):
+	def __getattr__(self, attr):
+		if attr == '__data':
+			return self.__data
 		if attr not in self.__data:
 			raise ConfigKeyError(attr)
 
@@ -33,12 +35,11 @@ class Config:
 		return attr in self.__data
 
 def load_configuration():
-	'''
-	Load the configuration found in `settings.json` into a friendly object.
-	'''
+	'''Load the configuration found in `settings.json` into a friendly
+	object.'''
 	config_path = os.path.join(
 		os.path.abspath(root_path[0]), 
-		'../settings.yaml'
+		'../config.api.yaml'
 	)
 	with open(config_path, 'r') as config_file:
 		preloaded_config = yaml.load(config_file)
@@ -48,4 +49,4 @@ def load_configuration():
 	return Config(preloaded_config)
 
 #	Load and provide the configuration.
-config = load_configuration()
+config = load_configuration() #	pylint: disable=invalid-name

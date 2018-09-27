@@ -1,54 +1,71 @@
 # coding: utf-8
-'''Centralized falcon UWSGI application object creation.'''
+'''Centralized falcon uWSGI application object creation.'''
 import json
 import falcon
 
 from traceback import format_exception
-from falcon_cors import CORS
+from falcon_cors import CORS as CORSPolicy
 from falcon_multipart.middleware import MultipartMiddleware
 
 from .errors import InternalServerError
 from .config import config
 from .log import logger
 
-def create_api(routing, routing_converters):
+def create_api(routing, routing_converters=None):
+	'''Create, configure, populate and return a falcon API object.
+
+	:param routing: A dictionary containing the route to endpoint instance
+	mapping with which to populate the API.
+	:param routing_converters: A map of route-converter keys to converter
+	objects. See the falcon documentation for more about in-route variable
+	conversion.
 	'''
-	Create, configure, populate and return a falcon API object.
-	::routing A dictionary containing the route to endpoint instance mapping
-		with which to populate the API.
-	'''
-	#	Create an application with the configured CORS policy and multipart 
+	#	Create an application with the configured CORS policy and multipart
 	#	form support.
-	cors_policy = CORS(**config['cors_policy'])
+	cors_policy = CORSPolicy(
+		**config.security.cors_policy.__data # pylint: disable=protected-access
+	)
 	application = falcon.API(middleware=list((
 		cors_policy.middleware, 
 		MultipartMiddleware()
 	)))
-	
-	#	Add a canonical base error handler.
-	log = logger('mac-api')
-	def _handle_uncaught_exceptions(ex, req, resp, params):
+
+	#	Create a root logger.
+	log = logger('api:root')
+
+	#	pylint: disable=unused-argument
+	def handle_uncaught_exception(ex, req, resp, params):
+		'''A root exception handler that ensures 500s are returned in the event
+		of an internal server error.'''
+		#	Re-raise HTTP-status-correspondant exceptions.
 		if isinstance(ex, falcon.HTTPError):
 			raise ex
-		
+
+		#	Log the error and raise a 500.
 		log.critical('Internal server error:')
 		log.critical(''.join(format_exception(type(ex), ex, ex.__traceback__)))
 		raise InternalServerError()
-	def _serialize_as_json(req, resp, ex):
+
+	#	Force JSON error responses.
+	def serialize_exception_as_json(req, resp, ex):
+		'''Supply a JSON representation of the error to the response.'''
 		resp.body = json.dumps(ex.to_dict())
 		resp.content_type = 'application/json'
 		resp.append_header('Vary', 'Accept')
-	application.add_error_handler(BaseException, _handle_uncaught_exceptions)
-	application.set_error_serializer(_serialize_as_json)
 
-	#	Populate the routing converters.
-	for key, converter_cls in routing_converters.items():
-		application.router_options.converters[key] = converter_cls
+	#	Register.
+	application.add_error_handler(BaseException, handle_uncaught_exception)
+	application.set_error_serializer(serialize_exception_as_json)
 
-	#	Populate the application's routing.
+	#	Populate the routing converters if there are any.
+	if routing_converters:
+		for key, converter_cls in routing_converters.items():
+			application.router_options.converters[key] = converter_cls
+
+	#	Populate the routing.
 	for route, endpoint in routing.items():
-		#	XXX: This won't be needed in a subdomained API prod. config.
-		route = '/api' + route
+		#	Maybe regionalize the root.
+		route = ''.join((config.env.api_route_prefix, route))
 
 		application.add_route(route, endpoint)
 

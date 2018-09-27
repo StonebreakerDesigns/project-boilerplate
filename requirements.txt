@@ -1,5 +1,10 @@
 #	Boilerplate requirements:
 pyyaml
+falcon
+falcon-cors
+werkzeug
+sqlalchemy
+psycopg2
 
 #	Project requirements:
 #	XXX: Any project-specific requirements here.
