@@ -1,8 +1,6 @@
 # coding: utf-8
-'''
-Custom HTTP-status-correspondant errors. Should always be used in favor of
-falcon's implementations.
-'''
+'''Custom HTTP-status-correspondant errors. Should always be used in favor of
+falcon's implementations.'''
 import falcon
 
 class CanonicalHTTPError(falcon.HTTPError):
