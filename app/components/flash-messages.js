@@ -42,9 +42,9 @@ export default class FlashMessages extends Component {
 		}, config.flashMessages.totalTime);
 	}
 
-	render() {
+	render({}, { messages }) {
 		return <div id="flash-messages">
-			{ this.state.messages.map(mo => 
+			{ messages.map(mo => 
 				<div class={ 
 					"flash-message" + (mo.present ? " present" : "") +
 					(mo.exists ? "" : " hidden")

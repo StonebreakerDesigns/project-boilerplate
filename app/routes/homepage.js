@@ -2,7 +2,7 @@ import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
 import styled from '../styled';
-import { withContext } from '../app-context';
+import withContext from '../app-context';
 import style from './homepage.less';
 
 @withContext

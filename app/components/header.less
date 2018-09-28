@@ -1,0 +1,11 @@
+@import '../config';
+
+#header {
+	height: @header-height;
+	transition: @transition-time height;
+	background-color: @theme;
+
+	&.collapsed {
+		height: 0px;
+	}
+}

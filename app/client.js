@@ -1,4 +1,4 @@
-/* The application client side. */
+/* The client-side application initializer. */
 import { render, h } from 'preact';
 
 import config from '../config/client.config';
@@ -7,9 +7,10 @@ import history from './history';
 import { StyleContext } from './styled';
 import App from './app';
 
-const root = document.getElementById('app-container');
-
+//	Grab root.
+const root = document.getElementById('app');
 const initialize = async () => {
+	//	Setup history API hooks.
 	history.listen((location, action) => {
 		if (action != 'PUSH' && action != 'POP') return;
 
@@ -36,4 +37,5 @@ const initialize = async () => {
 	);
 };
 
+//	Initialize.
 initialize();

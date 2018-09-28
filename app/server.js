@@ -1,10 +1,9 @@
-/* The application server. */
+/* The isomorphic application server. */
 import path from 'path';
 import express from 'express';
 import proxy from 'express-http-proxy';
 import { h } from 'preact';
 import { render } from 'preact-render-to-string';
-import bound from 'autobind-decorator';
 
 import config from '../config/server.config';
 import router from './router';
@@ -12,21 +11,18 @@ import { StyleContext } from './styled';
 import App from './app';
 
 class HTMLDocument {
-	/* An HTML document. */
-
+	/* An HTML document to be served. */
 	constructor(options) {
 		this.content = options.content;
 		this.title = options.title;
-
-		this.styles = [];
-	}
-
-	@bound
-	addStyle(style) {
-		this.styles.push(style);
 	}
 
 	serialize() {
+		//	Setup style collection.
+		let styles = [];
+		const addStyle = s => styles.push(s);
+		
+		//	Render.
 		const Component = this.content;
 		//	XXX: Customize the base document as needed.
 		let rendered = render(<html>
@@ -37,8 +33,8 @@ class HTMLDocument {
 				<meta name="description" content={ config.defaultDescription }/>
 			</head>
 			<body>
-				<div id="app-container">
-					<StyleContext.Provider value={ this.addStyle }>
+				<div id="app">
+					<StyleContext.Provider value={ addStyle }>
 						<App><Component/></App>
 					</StyleContext.Provider>
 				</div>
@@ -46,29 +42,30 @@ class HTMLDocument {
 			</body>
 		</html>);
 
-		let initialStyles = this.styles.map(s => s._getCss()).join('');
-		rendered = rendered.replace(
+		//	Insert styles.
+		return rendered.replace(
 			'</head>', 
-			`<style>${ initialStyles }</style></head>`
+			`<style>${ styles.map(s => s._getCss()).join('') }</style></head>`
 		);
-
-		return rendered;
 	}
 }
 
 //	Setup app.
 const app = express();
-
 app.use('/static', express.static(path.join(process.cwd(), 'static')));
 app.use('/assets', express.static(path.join(process.cwd(), 'dist', 'client')));
-app.use('/api', proxy('http://localhost:7990')); // TODO: Only in dev. mode.
+// TODO: Next only in dev. mode.
+app.use('/api', proxy('http://localhost:7990'));
 app.get('*', async (req, resp) => {
+	//	Resolve the route.
 	let route = await router.resolve(req.path);
+	//	Create the document.
 	let document = new HTMLDocument({
 		title: route.title,
 		content: route.component
 	});
 	
+	//	Respond.
 	resp.writeHead(route.status, {
 		'Content-Type': 'text/html; charset=utf-8'
 	});

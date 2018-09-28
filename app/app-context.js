@@ -1,15 +1,19 @@
-import { h } from 'preact';
+import { h, Component } from 'preact';
 import { createContext } from 'preact-context';
 
 const AppContext = createContext();
-const withContext = Component => {
+export default ContextDependentComponent => {
 	return class extends Component {
 		render() {
 			return <AppContext.Consumer>
-				{ context => <Component context={ context } {...this.props}/> }
+				{ context => 
+					<ContextDependentComponent 
+						context={ context } 
+						{...this.props}
+				/> }
 			</AppContext.Consumer>
 		}
 	}
 }
-
-export { AppContext, withContext }
+//	Export the context so the app can provide it.
+export { AppContext }

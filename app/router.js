@@ -1,4 +1,4 @@
-/* Routing. */
+/* The routing manager. */
 import NotFound from './components/not-found';
 
 export default new (class Router {
