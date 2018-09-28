@@ -1,7 +1,7 @@
 {
 	"description": "A Stonebreaker Designs project",
 	"scripts": {
-		"start": "concurrently \"webpack-dev-server --port 80 --config-name client --history-api-fallback\" \"python api\"",
+		"start": "node etc/dev-env-helper.js setup && concurrently \"webpack-dev-server --port 80 --config-name client --history-api-fallback\" \"python api\"",
 		"start-isomorphic": "gulp && concurrently \"node dist/server.js\" \"python api\""
 	},
 	"dependencies": {
@@ -33,6 +33,7 @@
 		"concurrently": "^4.0.1",
 		"gulp": "^3.9.1",
 		"gulp-cli": "^2.0.1",
+		"rimraf": "^2.6.2",
 		"webpack-dev-server": "^3.1.9"
 	}
 }

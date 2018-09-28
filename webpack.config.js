@@ -49,7 +49,7 @@ module.exports = [merge(common, {
 		publicPath: '/assets/'
 	},
 	devServer: {
-		contentBase: './static',
+		contentBase: 'dist',
 		proxy: {
 			'/api': 'http://localhost:7990'
 		}

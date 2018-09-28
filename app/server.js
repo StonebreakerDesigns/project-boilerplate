@@ -15,11 +15,6 @@ class HTMLDocument {
 	constructor(options) {
 		this.content = options.content;
 		this.title = options.title;
-		this.data = {};
-	}
-
-	addData(key, value) {
-		this.data[key] = value;
 	}
 
 	serialize() {
@@ -30,9 +25,6 @@ class HTMLDocument {
 				<link rel="icon" type="image/png" href={ 
 					config.theme.favicon 
 				}/>
-				<script>
-					window.data = { JSON.stringify(this.data) };
-				</script>
 			</head>
 			<body>
 				<div id="app">{ this.content }</div>

@@ -16,8 +16,6 @@ gulp.task('reset', () => {
 		
 		let items = fs.readdirSync(dirPath);
 		items.forEach(path => {
-			if (!path.endsWith('.js')) return;
-
 			path = dirPath + '/' + path;
 			console.log(`Cleaning ${ path }`);
 			fs.unlinkSync(path);
