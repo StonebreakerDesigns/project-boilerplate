@@ -36,7 +36,7 @@ def serve(port=None):
 	'''A debugging service function.'''
 	if not port:
 		port = 7990
-	serving.run_simple('0.0.0.0', port, application)
+	serving.run_simple('0.0.0.0', port, application, use_reloader=True)
 
 #	Ready to go!
 log.info('API server %s initialized', __version__)

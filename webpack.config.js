@@ -1,6 +1,7 @@
 const path = require('path');
 const merge = require('webpack-merge');
 
+//	Common configuration.
 const common = {
 	mode: 'development',
 	module: {
@@ -38,18 +39,27 @@ const common = {
 	}
 };
 
-
+//	Export client and server builds.
 module.exports = [merge(common, {
+	entry: ['babel-polyfill', './app/client.js'],
+	name: 'client',
+	output: {
+		path: path.resolve(__dirname, './dist/client'),
+		filename: 'client.js',
+		publicPath: '/assets/'
+	},
+	devServer: {
+		contentBase: './static',
+		proxy: {
+			'/api': 'http://localhost:7990'
+		}
+	}
+}), merge(common, {
 	entry: ['babel-polyfill', './app/server.js'],
+	name: 'server',
 	output: {
 		path: path.resolve(__dirname, './dist'),
 		filename: 'server.js'
 	},
 	target: 'node'
-}), merge(common, {
-	entry: ['babel-polyfill', './app/client.js'],
-	output: {
-		path: path.resolve(__dirname, './dist/client-bundles'),
-		filename: 'client.js'
-	}
 })];

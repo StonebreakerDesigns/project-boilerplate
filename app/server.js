@@ -5,6 +5,7 @@ import proxy from 'express-http-proxy';
 import { render } from 'preact-render-to-string';
 import { h } from 'preact';
 
+import config from '../config.server';
 import router from './router';
 import App from './app';
 
@@ -22,27 +23,30 @@ class HTMLDocument {
 	}
 
 	serialize() {
-		return `<!DOCTYPE html>
-		<html>
+		//	XXX: Customize the base document as needed.
+		return render(<html>
 			<head>
-				<title>${ this.title }</title>
+				<title>{ this.title }</title>
+				<link rel="icon" type="image/png" href={ 
+					config.theme.favicon 
+				}/>
 				<script>
-					window.data = ${ JSON.stringify(this.data) };
+					window.data = { JSON.stringify(this.data) };
 				</script>
 			</head>
 			<body>
-				<div id="app">${ render(this.content) }</div>
-				<script src="/client.js"></script>
+				<div id="app">{ this.content }</div>
+				<script src="/assets/client.js"/>
 			</body>
-		</html>
-		`
+		</html>);
 	}
 }
 
 //	Setup app.
 const app = express();
 
-app.use(express.static(path.join(process.cwd(), 'dist', 'client-bundles')));
+app.use('/static', express.static(path.join(process.cwd(), 'static')));
+app.use('/assets', express.static(path.join(process.cwd(), 'dist', 'client')));
 app.use('/api', proxy('http://localhost:7990')); // TODO: Only in dev. mode.
 app.get('*', async (req, resp) => {
 	let route = await router.resolve(req.path);
@@ -54,7 +58,7 @@ app.get('*', async (req, resp) => {
 	resp.writeHead(route.status, {
 		'Content-Type': 'text/html; charset=utf-8'
 	});
-	resp.end(document.serialize());
+	resp.end(`<!DOCTYPE html>${ document.serialize() }`);
 });
 
 //	Process command line arguments.

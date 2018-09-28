@@ -1,3 +1,4 @@
+/* The application client side. */
 import { render, h } from 'preact';
 
 import router from './router';
@@ -15,7 +16,7 @@ const initialize = async () => {
 			document.title = route.title;
 			render(
 				<App><route.Component/></App>,
-				root, root
+				root, root.firstElementChild
 			);
 		})();
 	});
@@ -24,7 +25,7 @@ const initialize = async () => {
 	const route = await router.resolve(window.location.pathname);
 	render(
 		<App><route.Component/></App>, 
-		root, root
+		root, root.firstElementChild
 	);
 };
 

@@ -1,7 +1,8 @@
 {
 	"description": "A Stonebreaker Designs project",
 	"scripts": {
-		"start": "node etc/prebuild && webpack-cli && concurrently \"node dist/server.js\" \"python api\""
+		"start": "concurrently \"webpack-dev-server --port 80 --config-name client --history-api-fallback\" \"python api\"",
+		"start-isomorphic": "gulp && concurrently \"node dist/server.js\" \"python api\""
 	},
 	"dependencies": {
 		"autobind-decorator": "^2.1.0",
@@ -17,6 +18,8 @@
 		"css-loader": "^1.0.0",
 		"express": "^4.16.3",
 		"express-http-proxy": "^1.4.0",
+		"gulp": "^3.9.1",
+		"gulp-cli": "^2.0.1",
 		"history": "^4.7.2",
 		"immer": "^1.6.0",
 		"less": "^3.8.1",
@@ -26,6 +29,8 @@
 		"style-loader": "^0.22.1",
 		"webpack": "^4.16.5",
 		"webpack-cli": "^3.1.0",
-		"webpack-merge": "^4.1.4"
+		"webpack-dev-server": "^3.1.9",
+		"webpack-merge": "^4.1.4",
+		"webpack-stream": "^5.1.1"
 	}
 }
