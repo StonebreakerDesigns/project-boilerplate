@@ -15,8 +15,7 @@ const initialize = async () => {
 			document.title = route.title;
 			render(
 				<App><route.Component/></App>,
-				root,
-				root
+				root, root
 			);
 		})();
 	});
@@ -25,8 +24,7 @@ const initialize = async () => {
 	const route = await router.resolve(window.location.pathname);
 	render(
 		<App><route.Component/></App>, 
-		root,
-		root
+		root, root
 	);
 };
 
