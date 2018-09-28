@@ -1,5 +1,5 @@
 {
-	"description": "The My Art Concierge platform",
+	"description": "A Stonebreaker Designs project",
 	"scripts": {
 		"start": "node etc/prebuild && webpack-cli && concurrently \"node dist/server.js\" \"python api\""
 	},
