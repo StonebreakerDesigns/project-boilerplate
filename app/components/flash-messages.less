@@ -1,0 +1,22 @@
+@import '../config.less';
+
+#flash-messages {
+	position: fixed;
+	right: 0px;
+	top: @top-safety-space;
+	pointer-events: none;
+
+	.flash-message {
+		transform: translateX(200%);
+		transition: @transition-time all;
+		overflow: hidden;
+		max-height: 0px;
+		margin: 0px;
+
+		&.present {
+			transform: translateX(0);
+			max-height: 200px;
+			margin: 10px;
+		}
+	}
+}

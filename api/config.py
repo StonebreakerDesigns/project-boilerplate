@@ -42,7 +42,7 @@ def load_configuration():
 	object.'''
 	config_path = os.path.join(
 		os.path.abspath(root_path[0]), 
-		'../config.api.yaml'
+		'../config/api.config.yaml'
 	)
 	with open(config_path, 'r') as config_file:
 		preloaded_config = yaml.load(config_file)

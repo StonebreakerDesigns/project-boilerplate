@@ -1,5 +1,6 @@
 /* Create or destroy the webpack-dev-server environment. */
 const fs = require('fs');
+const { ncp } = require('ncp');
 const rmrf = require('rimraf');
 
 const DEV_HTML_TEMPLATE = `
@@ -28,6 +29,8 @@ const handleMode = () => {
 		//	Refresh dev. directory.
 		fs.mkdirSync('./dist');
 		fs.writeFileSync('./dist/index.html', DEV_HTML_TEMPLATE);
+		fs.mkdirSync('./dist/static');
+		ncp('./static', './dist/static');
 	}
 };
 

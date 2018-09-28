@@ -5,7 +5,7 @@ import proxy from 'express-http-proxy';
 import { render } from 'preact-render-to-string';
 import { h } from 'preact';
 
-import config from '../config.server';
+import config from '../config/config.server';
 import router from './router';
 import App from './app';
 
@@ -44,7 +44,7 @@ app.get('*', async (req, resp) => {
 	let route = await router.resolve(req.path);
 	let document = new HTMLDocument({
 		title: route.title,
-		content: <App><route.Component/></App>
+		content: <App><route.component/></App>
 	});
 	
 	resp.writeHead(route.status, {

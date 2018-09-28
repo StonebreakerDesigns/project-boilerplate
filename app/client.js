@@ -1,6 +1,7 @@
 /* The application client side. */
 import { render, h } from 'preact';
 
+import config from '../config/client.config'
 import router from './router';
 import history from './history';
 import App from './app';
@@ -15,7 +16,7 @@ const initialize = async () => {
 			const route = await router.resolve(location.pathname);
 			document.title = route.title;
 			render(
-				<App><route.Component/></App>,
+				<App><route.component/></App>,
 				root, root.firstElementChild
 			);
 		})();
@@ -23,8 +24,9 @@ const initialize = async () => {
 
 	//	Load initial page.
 	const route = await router.resolve(window.location.pathname);
+	document.title = route.title;
 	render(
-		<App><route.Component/></App>, 
+		<App><route.component/></App>, 
 		root, root.firstElementChild
 	);
 };
