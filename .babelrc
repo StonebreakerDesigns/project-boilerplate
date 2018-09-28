@@ -1,8 +1,7 @@
 {
-	"presets": [
-		"env", "react"
-	],
+	"presets": ["env"],
 	"plugins": [
+		["transform-react-jsx", {"pragma": "h"}],
 		"transform-decorators-legacy",
 		"syntax-dynamic-import"
 	]

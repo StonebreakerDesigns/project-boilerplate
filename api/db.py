@@ -41,7 +41,7 @@ Session = _sessionmaker(bind=_engine)
 #	pylint: enable=invalid-name
 
 #	Classes.
-class Model(_declarative_base()):
+class _Model:
 
 	@classmethod
 	def get(cls, check_id, sess):
@@ -62,6 +62,7 @@ class Model(_declarative_base()):
 		'''The dictization method. `user` should always be checked to ensure 
 		data exposure is okay, even if you're securing it elsewhere.'''
 		raise NotImplementedError()
+Model = _declarative_base(cls=_Model)
 
 #	Helpers.
 def UUIDPrimaryKey(): # pylint: disable=invalid-name

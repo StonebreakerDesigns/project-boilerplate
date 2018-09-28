@@ -40,14 +40,14 @@ const common = {
 
 
 module.exports = [merge(common, {
-	entry: ['babel-polyfill', './src/server.js'],
+	entry: ['babel-polyfill', './app/server.js'],
 	output: {
 		path: path.resolve(__dirname, './dist'),
 		filename: 'server.js'
 	},
 	target: 'node'
 }), merge(common, {
-	entry: ['babel-polyfill', './src/client.js'],
+	entry: ['babel-polyfill', './app/client.js'],
 	output: {
 		path: path.resolve(__dirname, './dist/client-bundles'),
 		filename: 'client.js'

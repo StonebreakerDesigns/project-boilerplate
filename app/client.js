@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import { render, h } from 'preact';
 
 import router from './router';
 import history from './history';
 import App from './app';
 
-const root = document.getElementById('app-container');
+const root = document.getElementById('app');
 
 const initialize = async () => {
 	history.listen((location, action) => {
@@ -14,10 +13,9 @@ const initialize = async () => {
 		(async () => {
 			const route = await router.resolve(location.pathname);
 			document.title = route.title;
-			ReactDOM.render(
-				<App>
-					<route.Component/>
-				</App>,
+			render(
+				<App><route.Component/></App>,
+				root,
 				root
 			);
 		})();
@@ -25,10 +23,9 @@ const initialize = async () => {
 
 	//	Load initial page.
 	const route = await router.resolve(window.location.pathname);
-	ReactDOM.hydrate(
-		<App>
-			<route.Component/>
-		</App>, 
+	render(
+		<App><route.Component/></App>, 
+		root,
 		root
 	);
 };

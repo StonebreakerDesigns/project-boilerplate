@@ -1,12 +1,16 @@
+/* The application server. */
 import path from 'path';
 import express from 'express';
-import React from 'react';
-import ReactDOM from 'react-dom/server';
+import proxy from 'express-http-proxy';
+import { render } from 'preact-render-to-string';
+import { h } from 'preact';
 
 import router from './router';
 import App from './app';
 
 class HTMLDocument {
+	/* An HTML document. */
+
 	constructor(options) {
 		this.content = options.content;
 		this.title = options.title;
@@ -27,7 +31,7 @@ class HTMLDocument {
 				</script>
 			</head>
 			<body>
-				<div id="app-container">${ ReactDOM.renderToString(this.content) }</div>
+				<div id="app">${ render(this.content) }</div>
 				<script src="/client.js"></script>
 			</body>
 		</html>
@@ -35,9 +39,11 @@ class HTMLDocument {
 	}
 }
 
+//	Setup app.
 const app = express();
 
 app.use(express.static(path.join(process.cwd(), 'dist', 'client-bundles')));
+app.use('/api', proxy('http://localhost:7990')); // TODO: Only in dev. mode.
 app.get('*', async (req, resp) => {
 	let route = await router.resolve(req.path);
 	let document = new HTMLDocument({
@@ -51,4 +57,7 @@ app.get('*', async (req, resp) => {
 	resp.end(document.serialize());
 });
 
-app.listen(7500);
+//	Process command line arguments.
+const args = process.argv;
+let port = args.length < 3 ? 80 : args[2];
+app.listen(port);

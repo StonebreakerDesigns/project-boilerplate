@@ -1,10 +1,8 @@
-import React from 'react';
+import { Component, h } from 'preact';
 
 import history from '../history';
-import metadata from './route-metadata';
 
-@metadata({title: 'Sup'})
-class Homepage extends React.Component {
+class Homepage extends Component {
 	render() {
 		return <h1 onClick={ () => history.push('/somewhere') }>
 			Hi!
