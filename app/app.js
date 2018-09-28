@@ -2,10 +2,12 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
+import styled from './styled';
 import { AppContext } from './app-context'; 
 import FlashMessages from './components/flash-messages';
-import './app.less';
+import style from './app.less';
 
+@styled(style)
 export default class App extends Component {
 	constructor(props) {
 		super(props);
@@ -25,7 +27,7 @@ export default class App extends Component {
 			<AppContext.Provider value={ this.appContext }>
 				{ this.props.children }
 			</AppContext.Provider>
-			<FlashMessages ref={ c => this.flashMessages = c }/>
+			<FlashMessages appBinding={ c => this.flashMessages = c }/>
 		</div>
 	}
 }

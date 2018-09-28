@@ -1,11 +1,12 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
-import history from '../history';
+import styled from '../styled';
 import { withContext } from '../app-context';
-import './homepage.less';
+import style from './homepage.less';
 
 @withContext
+@styled(style)
 class Homepage extends Component {
 	constructor(props) {
 		super(props);
@@ -15,9 +16,8 @@ class Homepage extends Component {
 
 	@bound
 	greet() {
-		this.props.context.flashMessage(`
-			Hello, ${ this.greetings } time${ this.greetings > 1 ? 's' : '' }!
-		`);
+		this.props.context.flashMessage(`Hello, ${ this.greetings }`
+			+ ` time${ this.greetings > 1 ? 's' : '' }!`);
 		this.greetings++;
 	}
 

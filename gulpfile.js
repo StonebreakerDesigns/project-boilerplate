@@ -16,6 +16,8 @@ gulp.task('reset', () => {
 		
 		let items = fs.readdirSync(dirPath);
 		items.forEach(path => {
+			if (path == 'client' || path == 'static') return;
+
 			path = dirPath + '/' + path;
 			console.log(`Cleaning ${ path }`);
 			fs.unlinkSync(path);

@@ -1,6 +1,6 @@
 /* Application server configuration. */
 export default {
-	theme: {
-		favicon: '/static/stonebreaker.jpg'
-	}
+	lang: "en",
+	favicon: '/static/stonebreaker.jpg',
+	defaultDescription: "A Stonebreaker project"
 }

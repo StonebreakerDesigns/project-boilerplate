@@ -2,11 +2,13 @@
 import path from 'path';
 import express from 'express';
 import proxy from 'express-http-proxy';
-import { render } from 'preact-render-to-string';
 import { h } from 'preact';
+import { render } from 'preact-render-to-string';
+import bound from 'autobind-decorator';
 
-import config from '../config/config.server';
+import config from '../config/server.config';
 import router from './router';
+import { StyleContext } from './styled';
 import App from './app';
 
 class HTMLDocument {
@@ -15,22 +17,42 @@ class HTMLDocument {
 	constructor(options) {
 		this.content = options.content;
 		this.title = options.title;
+
+		this.styles = [];
+	}
+
+	@bound
+	addStyle(style) {
+		this.styles.push(style);
 	}
 
 	serialize() {
+		const Component = this.content;
 		//	XXX: Customize the base document as needed.
-		return render(<html>
+		let rendered = render(<html>
 			<head>
 				<title>{ this.title }</title>
-				<link rel="icon" type="image/png" href={ 
-					config.theme.favicon 
-				}/>
+				<link rel="icon" type="image/png" href={ config.favicon }/>
+				<meta name="viewport" content="width=device-width, initial-scale=1"/>
+				<meta name="description" content={ config.defaultDescription }/>
 			</head>
 			<body>
-				<div id="app">{ this.content }</div>
-				<script src="/assets/client.js"/>
+				<div id="app-container">
+					<StyleContext.Provider value={ this.addStyle }>
+						<App><Component/></App>
+					</StyleContext.Provider>
+				</div>
+				<script src="/assets/client.js" defer/>
 			</body>
 		</html>);
+
+		let initialStyles = this.styles.map(s => s._getCss()).join('');
+		rendered = rendered.replace(
+			'</head>', 
+			`<style>${ initialStyles }</style></head>`
+		);
+
+		return rendered;
 	}
 }
 
@@ -44,7 +66,7 @@ app.get('*', async (req, resp) => {
 	let route = await router.resolve(req.path);
 	let document = new HTMLDocument({
 		title: route.title,
-		content: <App><route.component/></App>
+		content: route.component
 	});
 	
 	resp.writeHead(route.status, {

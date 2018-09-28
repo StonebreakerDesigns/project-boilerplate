@@ -19,6 +19,7 @@
 		"express-http-proxy": "^1.4.0",
 		"history": "^4.7.2",
 		"immer": "^1.6.0",
+		"isomorphic-style-loader": "^4.0.0",
 		"less": "^3.8.1",
 		"less-loader": "^4.1.0",
 		"ncp": "^2.0.0",

@@ -13,7 +13,7 @@ const common = {
 			{
 				test: /\.less?$/,
 				use: [
-					{loader: 'style-loader'},
+					{loader: 'isomorphic-style-loader'},
 					{loader: 'css-loader'},
 					{loader: 'less-loader'}
 				]

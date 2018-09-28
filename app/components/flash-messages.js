@@ -1,8 +1,11 @@
 import { Component, h } from 'preact';
+import a from 'isomorphic-style-loader/lib';
 
 import config from '../config';
-import './flash-messages.less';
+import styled from '../styled';
+import style from './flash-messages.less';
 
+@styled(style)
 export default class FlashMessages extends Component {
 	constructor(props) {
 		super(props);
@@ -10,6 +13,10 @@ export default class FlashMessages extends Component {
 		this.state = {
 			messages: []
 		}
+	}
+
+	componentWillMount() {
+		this.props.appBinding(this);
 	}
 
 	add(message) {
