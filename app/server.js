@@ -7,12 +7,13 @@ import { render } from 'preact-render-to-string';
 
 import config from '../config/server.config';
 import router from './router';
-import { StyleContext } from './styled';
+import { StyleContext } from './style-context';
 import App from './app';
 
 /** An HTML document to be served containing the SSRd route. */
 class HTMLDocument {
 	constructor(options) {
+		this.route = options.route;
 		this.content = options.content;
 		this.title = options.title;
 	}
@@ -36,11 +37,15 @@ class HTMLDocument {
 					content="width=device-width, initial-scale=1"
 				/>
 				<meta name="description" content={ config.defaultDescription }/>
+				<link 
+					rel="stylesheet" 
+					href="/static/lib/fontawesome/import.css"
+				/>
 			</head>
 			<body>
 				<div id="app">
 					<StyleContext.Provider value={ addStyle }>
-						<App><Component/></App>
+						<App route={ this.route }><Component/></App>
 					</StyleContext.Provider>
 				</div>
 				<script src="/assets/client.js" defer/>
@@ -66,6 +71,7 @@ app.get('*', async (req, resp) => {
 	let route = await router.resolve(req.path);
 	//	Create the document.
 	let document = new HTMLDocument({
+		route: req.path,
 		title: route.title,
 		content: route.component
 	});

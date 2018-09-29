@@ -8,4 +8,4 @@ max-line-length=80
 
 [MESSAGES CONTROL]
 #	Disable import specifics. Use general import then surgical import blocks.
-disable=C0411,C0412
+disable=E0001,C0411,C0412,C0103,R0201,R0913,W0613

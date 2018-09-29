@@ -1,0 +1,15 @@
+@font-face {
+	font-family: 'FontAwesome';
+	src: url('static/lib/fontawesome/fa-regular-400.eot');
+	src: url('static/lib/fontawesome/fa-regular-400.eot?#iefix') format('embedded-opentype'), url('static/lib/fontawesome/fa-regular-400.woff2') format('woff2'), url('static/lib/fontawesome/fa-regular-400.woff') format('woff'), url('static/lib/fontawesome/fa-regular-400.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal
+}
+.fa {
+	display: inline-block;
+	font: normal normal normal 12pt FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale
+}

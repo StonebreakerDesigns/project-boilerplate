@@ -2,7 +2,7 @@
 import { Component, h } from 'preact';
 
 import config from '../config';
-import styled from '../styled';
+import styled from '../style-context';
 import style from './flash-messages.less';
 
 /** 

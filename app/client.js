@@ -3,7 +3,7 @@ import { render, h } from 'preact';
 
 import router from './router';
 import history from './history';
-import { StyleContext } from './styled';
+import { StyleContext } from './style-context';
 import App from './app';
 
 //	Grab root.
@@ -16,7 +16,7 @@ const initialize = async () => {
 		document.title = routeObj.title;
 		render(
 			<StyleContext.Provider value={ null }>
-				<App><routeObj.component/></App>
+				<App route={ route }><routeObj.component/></App>
 			</StyleContext.Provider>,
 			root, root.firstElementChild
 		);

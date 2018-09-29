@@ -2,7 +2,7 @@
 import { Component, h } from 'preact';
 
 import contextual from '../app-context';
-import styled from '../styled';
+import styled from '../style-context';
 import style from './not-found.less';
 
 /** The 404 page-like component. */
@@ -18,7 +18,9 @@ class NotFoundPage extends Component {
 	}
 
 	render() { return (
-		<em>Not Found</em>
+		<div id="not-found">
+			<em>Not Found</em>
+		</div>
 	); }
 }
 

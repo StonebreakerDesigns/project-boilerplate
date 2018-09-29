@@ -15,7 +15,14 @@ const common = {
 				use: [
 					{loader: 'isomorphic-style-loader'},
 					{loader: 'css-loader'},
-					{loader: 'less-loader'}
+					{
+						loader: 'less-loader',
+						options: {
+							paths: [path.resolve(
+								__dirname, 'node_modules/@fortawesome'
+							)]
+						}
+					}
 				]
 			},
 			{
@@ -26,14 +33,10 @@ const common = {
 				]
 			},
 			{
-				test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-				use: [{
-					loader: 'file-loader',
-					options: {
-						name: '[name].[ext]',
-						outputPath: 'fonts/'
-					}
-				}]
+				test: /\.svg$/,
+				use: [
+					{loader: 'preact-svg-loader'}
+				],
 			}
 		]
 	}

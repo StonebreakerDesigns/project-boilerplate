@@ -1,8 +1,10 @@
 /** The landing / homepage. */
 import { Component, h } from 'preact';
 
-import styled from '../styled';
+import styled from '../style-context';
 import contextual from '../app-context';
+import { Link } from '../components/primitives';
+import Brand from '../svgs/brand.svg';
 import style from './homepage.less';
 
 /** The homepage component. */
@@ -15,8 +17,11 @@ class Homepage extends Component {
 
 	render() { return (
 		<div id="landing">
-			<img src="/static/stonebreaker.jpg"/>
-			<p>You're good to go; get creating!</p>
+			<div class="brand-container">
+				<Brand/>
+			</div>
+			<p>Get creating!</p>
+			<Link label="Go Somewhere" icon="heart" href="/somewhere"/>
 		</div>
 	); }
 }

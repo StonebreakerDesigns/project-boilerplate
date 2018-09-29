@@ -1,7 +1,8 @@
 /** The site header. Can be hidden and revealed via the app context. */
 import { Component, h } from 'preact';
 
-import styled from '../styled';
+import styled from '../style-context';
+import HeaderUserPanel from './header-user-panel';
 import style from './header.less';
 
 /** The site header. */
@@ -26,7 +27,8 @@ class Header extends Component {
 
 	render({}, { visible }) { return (
 		<div id="header" class={ visible ? '' : ' collapsed'}>
-			<h1>An App!</h1>
+			<div class="brand">A clean slate...</div>
+			<HeaderUserPanel/>
 		</div>
 	); }
 }

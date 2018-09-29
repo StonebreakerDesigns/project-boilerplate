@@ -1,8 +1,9 @@
 /* Application client-side configuration. */
-export default {
+const config = {
+	apiURL: '/api',
 	flashMessages: {
 		fadeTime: 1000,
 		totalTime: 5000
 	}
-	//	XXX: Any other client configuration here.
-}
+};
+export default config;

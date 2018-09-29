@@ -8,7 +8,6 @@ import sys
 from werkzeug import serving
 
 #	Declare version.
-#	XXX: Update as needed.
 __version__ = '0.1a'
 
 from .config import config
@@ -19,16 +18,20 @@ from .api_factory import create_api
 #	Create a logger.
 log = logger(__name__) #	pylint: disable=invalid-name
 
-#	XXX: Import domain endpoints here.
+#	Import endpoints.
+from .users import AuthEndpoint, UserCollectionEndpoint, \
+	UserInstanceEndpoint, PasswordResetEndpoint, PasswordResetRequestEndpoint
 
 #	Initialize system.
 create_models()
-#	XXX: Perform project-specific initialization here.
 
 #	Create WSGI application.
 application = create_api({ #	pylint: disable=invalid-name
-	#	XXX: Define routing here. Optionally, define routing converters as a
-	#		second positional argument.
+	'/users': UserCollectionEndpoint(),
+	'/users/{id:uuid}': UserInstanceEndpoint(),
+	'/auth': AuthEndpoint(),
+	'/auth/request-password-reset': PasswordResetRequestEndpoint(),
+	'/auth/password-reset': PasswordResetEndpoint()
 })
 
 #	Define debug helper.

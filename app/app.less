@@ -1,6 +1,60 @@
 /* Universal app styles, loaded on every page. */
-* { box-sizing: border-box; }
+//	Import font awesome map.
+@import 'fontawesome-free/less/fontawesome.less';
 
+@import './mixins/all.less';
+
+//	Global directives.
+* { box-sizing: border-box; }
+html {
+	position: relative;
+	margin: 0px;
+	min-height: 100vh;
+	background-color: @lights;
+	color: @darks;
+	font-family: @text-font;
+
+	body { margin: 0px; }
+}
+a {
+	text-decoration: none; 
+	color: @link;
+}
+
+//	Helper classes.
 .hidden { display: none; }
 
-//	TODO: The usual suspects.
+button {
+	position: relative;
+	border: none; outline: none;
+	background-color: @success;
+	font-weight: bold; text-transform: uppercase;
+	padding: 6px 15px;
+	border-radius: 2px;
+	cursor: pointer;
+	margin: 0px 6px;
+	
+	span, i {
+		transition: 0.5s color;
+		position: relative;
+		z-index: 5;
+		color: @lights;
+	}
+	i { margin-right: 5px; }
+
+	&:after {
+		content: "";
+		position: absolute;
+		left: 0px; top: 0px; bottom: 0px;
+		width: 0px;
+		background-color: @success;
+
+		transition: 0.5s width;
+	}
+	&:hover:after { width: 100%; }
+
+	&.warn {
+		background-color: @theme;
+		&:after { background-color: @warning; }
+	}
+}

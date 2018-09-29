@@ -6,7 +6,8 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
-import styled from './styled';
+import { get } from './request';
+import styled from './style-context';
 import { AppContext } from './app-context'; 
 import FlashMessages from './components/flash-messages';
 import Header from './components/header';
@@ -20,12 +21,24 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 
-		//	Create the app context.
-		this.appContext = {
-			flashMessage: this.flashMessage,
-			showHeader: this.showHeader,
-			hideHeader: this.hideHeader
+		//	Define state.
+		this.state = {
+			route: this.props.route,
+			user: null
 		};
+	}
+
+	componentWillMount() {
+		this.fetchAuth();		
+	}
+
+	/** Fetch the currently authenticated user. */
+	@bound
+	async fetchAuth() {
+		let authFetch = await get('/auth');
+		
+		let user = authFetch.status == 'success' ? authFetch.data : null;
+		this.setState({ user });
 	}
 
 	/**
@@ -52,15 +65,27 @@ class App extends Component {
 		this.header.setVisible(false);
 	}
 
-	render() { return (
-		<div id="app-root">
-			<AppContext.Provider value={ this.appContext }>
-				<Header appBinding={ c => this.header = c }/>
-				{ this.props.children }
-				<FlashMessages appBinding={ c => this.flashMessages = c }/>
-			</AppContext.Provider>
-		</div>
-	); }
+	render({ children }, { route, user }) { 
+		//	Collect app context.
+		const appContext = {
+			route: route,
+			user: user,
+			fetchAuth: this.fetchAuth,
+			flashMessage: this.flashMessage,
+			showHeader: this.showHeader,
+			hideHeader: this.hideHeader
+		};
+
+		return (
+			<div id="app-root">
+				<AppContext.Provider value={ appContext }>
+					<Header appBinding={ c => this.header = c }/>
+					{ children }
+					<FlashMessages appBinding={ c => this.flashMessages = c }/>
+				</AppContext.Provider>
+			</div>
+		); 
+	}
 }
 
 //	Exports.

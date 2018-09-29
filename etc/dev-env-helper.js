@@ -11,6 +11,7 @@ const DEV_HTML_TEMPLATE = `
 		<script>
 			console.warn("This isn't isomorphic service!");
 		</script>
+		<link rel="stylesheet" href="/static/lib/fontawesome/import.css"/>
 	</head>
 	<body>
 		<div id="app">

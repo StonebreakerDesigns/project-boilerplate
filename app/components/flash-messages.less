@@ -1,23 +1,56 @@
-@import '../mixins/anim.less';
-@import '../mixins/layout.less';
+@import '../mixins/colors.less';
 
 #flash-messages {
 	position: fixed;
+	top: 70px;
 	right: 0px;
-	top: @top-safety;
+	z-index: 1000;
 	pointer-events: none;
-
+	
 	.flash-message {
-		transform: translateX(200%);
-		transition: @transition-time all;
-		overflow: hidden;
-		max-height: 0px;
-		margin: 0px;
+		pointer-events: all;
+		position: relative;
+		background-color: @lights;
+		border: 1px solid @borders;
+		color: @darks;
+		padding: 10px;
+		padding-right: 30px;
+		margin: 10px;
+		transition: 1s transform;
+		border-radius: 2px;
 
-		&.present {
-			transform: translateX(0);
-			max-height: 200px;
-			margin: 10px;
+		.content-container {
+			display: inline-block;
+			vertical-align: top;
+			width: calc(100% - 26px);
+
+			p {
+				margin-top: 0px;
+				margin-bottom: 10px;
+			}
+
+			button {
+				margin-left: 0px;
+				font-size: 9pt;
+			}
+		}
+
+		.warning-icon {
+			color: @warning;
+			margin-right: 10px;
+		}
+
+		.dismiss {
+			color: @darks;
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			font-size: 11pt;
+			cursor: pointer;
+		}
+
+		&.out {
+			transform: translateX(200%);
 		}
 	}
 }

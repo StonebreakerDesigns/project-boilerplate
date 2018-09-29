@@ -47,8 +47,6 @@ def load_configuration():
 	with open(config_path, 'r') as config_file:
 		preloaded_config = yaml.load(config_file)
 
-	#	XXX: Any project-specific configuration here.
-
 	return Config(preloaded_config)
 
 #	Load and provide the configuration.

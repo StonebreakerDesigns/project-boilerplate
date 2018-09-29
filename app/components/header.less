@@ -5,7 +5,13 @@
 	transition: @transition-time height;
 	background-color: @theme;
 
-	&.collapsed {
-		height: 0px;
+	&.collapsed { height: 0px; }
+	
+	.brand, #user-panel {
+		padding: 0px 20px;
+		line-height: @header-height;
+		color: @lights;
+		display: inline-block;
 	}
+	#user-panel { float: right; }
 }

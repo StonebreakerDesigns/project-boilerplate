@@ -7,15 +7,16 @@ from datetime import datetime, timedelta
 from .config import config
 from .errors import Unauthorized, Forbidden, BadRequest, UnprocessableEntity
 from .log import logger
-from .db import Model, Session, Column, ForeignKey, DateTime, EmailType, \
-	PasswordType, Text, Enum, UUIDPrimaryKey, UUID, Boolean, IntegrityError, \
-	CheckConstraint, relationship, get_error_description, query_and, \
-	with_session, dictize_attrs
+from .db import Model, Column, ForeignKey, DateTime, EmailType, PasswordType, \
+	Text, Enum, UUIDPrimaryKey, UUID, Boolean, IntegrityError, relationship, \
+	get_error_description, query_and, with_session, dictize_attrs
 from .email import send_email
 
 #	Define the set of allowed user types.
-#	XXX: Add project-specific ones.
 ALLOWED_USER_TYPES = ('basic', 'admin')
+CONSTRAINT_DESC_MAP = {
+	'email_address': 'That email address is taken'
+}
 
 #	Create a logger.
 log = logger(__name__)
@@ -76,10 +77,11 @@ class User(Model):
 						  	default=uuid.uuid4)
 	created_at          = Column(DateTime, nullable=False, 
 							default=datetime.now)
-	#	XXX: Add project-specific fields.
 	#	pylint: enable=bad-continuation, bad-whitespace
 
-	#	XXX: Add a constructor.
+	def __init__(self, email_address, password):
+		self.email_address = email_address
+		self.password = password
 
 	@classmethod
 	def get_for_session_key(cls, key, sess):
@@ -97,7 +99,7 @@ class User(Model):
 		return sess.query(cls).filter(
 			cls.api_key == api_key
 		).first()
-	
+
 	@classmethod
 	def get_by_email_address(cls, email_address, sess):
 		'''Return the user with the given email address.'''
@@ -230,7 +232,7 @@ class PasswordResetToken(Model):
 		return sess.query(cls).filter(query_and(
 			cls.key == key,
 			cls.expiry > datetime.now(),
-			cls.used == False
+			cls.used == False # pylint: disable=singleton-comparison
 		)).first()
 
 #	Endpoints.
@@ -241,23 +243,25 @@ class UserCollectionEndpoint:
 	def on_post(self, req, resp, sess):
 		'''Create a user given a JSON payload in the request.'''
 		#	Assert password confirmation.
-		if req.json[('password', str)] != req.json['confirm_password']:
+		password = req.json[('password', str)]
+		if password != req.json['confirm_password']:
 			raise UnprocessableEntity(
 				message="Passwords didn't match", offender='confirm_password'
 			)
 
-		#	XXX: Create the user.
-		raise NotImplementedError(); user = User()
-
+		#	Create the user.
+		user = User(
+			req.json[('email_address', str)],
+			password
+		)
 		sess.add(user)
+
+		#	Try and create.
 		try:
 			sess.commit()
 		except IntegrityError as ex:
 			#	Return a relevant error description.
-			desc = get_error_description(ex, {
-				'email_address': 'That email address is taken'
-			})
-			#	XXX: Add project-specific failure cases.
+			desc = get_error_description(ex, CONSTRAINT_DESC_MAP)
 
 			raise UnprocessableEntity(message=desc) from None
 
@@ -310,16 +314,13 @@ class UserInstanceEndpoint:
 				raise UnprocessableEntity(message="Passwords didn't match")
 			#	Set new password.
 			to_edit.password = password
-		#	XXX: Add project-specific own edit cases.
+		#	XXX: Add project-specific self edit cases.
 
 		#	Save the changes.
 		try:
 			sess.commit()
 		except IntegrityError as ex:
-			desc = get_error_description(ex, {
-				'email_address': 'That email address is taken'
-			})
-			#	XXX: Add project-specific failure cases.
+			desc = get_error_description(ex, CONSTRAINT_DESC_MAP)
 
 			raise UnprocessableEntity(message=desc) from None
 
@@ -389,14 +390,14 @@ class PasswordResetRequestEndpoint:
 		user = User.get_by_email_address(email_address, sess)
 		if not user:
 			return
-		
+
 		#	Create the token and send an email to the user containing a
 		#	link to the reset page.
 		token = PasswordResetToken(user.id)
 		sess.add(token)
 		sess.commit()
 
-		#	XXX: Acctually complete.
+		#	XXX: Actually complete.
 		reset_url = '%s/%s?r=%s'%(
 			config.env.site_domain, 'reset-password', str(token.key)
 		)

@@ -41,6 +41,10 @@ class ExpectationMiddleware:
 			#	Raise.
 			raise MethodNotAllowed(allowed_here)
 
+		#	Check if payload expected.
+		if req.method == 'GET':
+			return
+
 		#	Check mimetype.
 		expected_mimetype = getattr(responder, '_expects_mimetype', 'json')
 		declared_mimetype = req.get_header('Content-Type')

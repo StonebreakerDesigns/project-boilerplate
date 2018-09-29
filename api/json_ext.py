@@ -25,6 +25,10 @@ class JSONMiddleware:
 	def process_resource(self, req, resp, resource, params):
 		'''Ensure the client has supplied a JSON payload if one was 
 		expected.'''
+		#	Ensure this is a payload-friendly verb.
+		if req.method == 'GET':
+			return
+
 		#	Ensure the responder expects JSON.
 		responder = getattr(resource, 'on_%s'%req.method.lower())
 		if not getattr(responder, '_expects_mimetype', 'json') == 'json':
