@@ -10,8 +10,8 @@ import contextual from '../app-context';
 
 /** A button. */
 class Button extends Component {
-	render({ onClick, type, icon, label }) { return (
-		<button onClick={ onClick } class={ type || null }>
+	render({ onClick, variant, icon, label }) { return (
+		<button onClick={ onClick } class={ variant || null }>
 			{ icon && <i class={ 'fa fa-' + this.props.icon }/> }
 			{ label && <span class="label">{ label }</span> }
 		</button>
@@ -29,9 +29,9 @@ class Link extends Component {
 		if (event) event.preventDefault();
 	}
 
-	render({ href, context, type, icon, label }) { return (
+	render({ href, context, variant, icon, label }) { return (
 		<button onClick={ this.follow } class={ 
-			(type || '') + (context.route == href ? ' current' :'') 
+			(variant || '') + (context.route == href ? ' current' :'') 
 		}>
 			{ icon && <i class={ 'fa fa-' + icon }/> }
 			<a href={ href }><span>{ label }</span></a>

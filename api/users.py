@@ -12,6 +12,8 @@ from .db import Model, Column, ForeignKey, DateTime, EmailType, PasswordType, \
 	get_error_description, query_and, with_session, dictize_attrs
 from .email import send_email
 
+#	TODO: Password constraints.
+
 #	Define the set of allowed user types.
 ALLOWED_USER_TYPES = ('basic', 'admin')
 CONSTRAINT_DESC_MAP = {
@@ -270,6 +272,7 @@ class UserCollectionEndpoint:
 		sess.commit()
 
 		#	Respond.
+		resp.status = 201
 		resp.json = {'created_id': user.id}
 
 	@with_session

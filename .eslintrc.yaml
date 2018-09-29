@@ -50,6 +50,8 @@ rules:
         - componentDidMount
         - componentWillUnmount
         - componentDidUnmount
+        - validate
+        - submit
   no-empty-pattern: 0
   # Disable un-applicatible React linting.
   react/react-in-jsx-scope: 0

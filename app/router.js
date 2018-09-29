@@ -11,6 +11,9 @@ class Router {
 		this.routing = {
 			'/': () => import(
 				/* webpackChunkName: 'homepage' */ './routes/homepage'
+			),
+			'/signup': () => import(
+				/* webpackChunkName: 'signup' */ './routes/signup'
 			)
 		};
 	}

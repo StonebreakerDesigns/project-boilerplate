@@ -32,34 +32,29 @@ class App extends Component {
 		this.fetchAuth();		
 	}
 
-	/** Fetch the currently authenticated user. */
+	/** 
+	* 	Fetch the currently authenticated user. Should be access through the 
+	*	app context. 
+	*/
 	@bound
 	async fetchAuth() {
 		let authFetch = await get('/auth');
-		
+
 		let user = authFetch.status == 'success' ? authFetch.data : null;
 		this.setState({ user });
 	}
 
-	/**
-	*	Flash a message. Should be accessed through the app context.
-	*/
+	/** Flash a message. Should be accessed through the app context. */
 	@bound
 	flashMessage(message) {
 		this.flashMessages.add(message);
 	}
-
-	/**
-	*	Reveal the header. Should be accessed through the app context.
-	*/
+	/** Show the header. Should be accessed through the app context. */
 	@bound
 	showHeader() {
 		this.header.setVisible(true);
 	}
-
-	/**
-	*	Hide the header. Should be accessed through the app context.
-	*/
+	/** Hide the header. Should be accessed through the app context. */
 	@bound
 	hideHeader() {
 		this.header.setVisible(false);

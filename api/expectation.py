@@ -2,7 +2,8 @@
 '''Responder expectation declaration and enforcement. By default, all 
 responders expected JSON withing the configured maximum size.'''
 from .config import config
-from .errors import MethodNotAllowed, UnsupportedMediaType, PayloadTooLarge
+from .errors import MethodNotAllowed, UnsupportedMediaType, PayloadTooLarge, \
+	BadRequest
 
 #	Define the set of supported methods.
 ALLOWED_METHODS = ('get', 'post', 'put', 'delete', 'patch')
@@ -57,5 +58,10 @@ class ExpectationMiddleware:
 			config.security.max_content_length
 		)
 		declared_length = req.get_header('Content-Length')
+		#	Try to cast to int.
+		try:
+			declared_length = int(declared_length)
+		except TypeError:
+			raise BadRequest(message='Invalid Content-Length value')
 		if not declared_length or declared_length > max_length:
 			raise PayloadTooLarge()
