@@ -49,8 +49,14 @@ class ExpectationMiddleware:
 		#	Check mimetype.
 		expected_mimetype = getattr(responder, '_expects_mimetype', 'json')
 		declared_mimetype = req.get_header('Content-Type')
-		if not declared_mimetype or expected_mimetype not in declared_mimetype:
+		#	Skip JSON because the JSON middleware handles it.
+		#	pylint: disable=bad-continuation
+		if expected_mimetype != 'json' and (
+			not declared_mimetype or
+			expected_mimetype not in declared_mimetype
+		):
 			raise UnsupportedMediaType()
+		#	pylint: enable=bad-continuation
 
 		#	Check content length.
 		max_length = getattr(
@@ -63,5 +69,5 @@ class ExpectationMiddleware:
 			declared_length = int(declared_length)
 		except TypeError:
 			raise BadRequest(message='Invalid Content-Length value')
-		if not declared_length or declared_length > max_length:
+		if declared_length > max_length:
 			raise PayloadTooLarge()

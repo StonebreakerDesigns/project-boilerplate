@@ -14,6 +14,7 @@ import App from './app';
 class HTMLDocument {
 	constructor(options) {
 		this.route = options.route;
+		this.query = options.query;
 		this.content = options.content;
 		this.title = options.title;
 	}
@@ -45,7 +46,9 @@ class HTMLDocument {
 			<body>
 				<div id="app">
 					<StyleContext.Provider value={ addStyle }>
-						<App route={ this.route }><Component/></App>
+						<App route={ this.route } query={ this.query }>
+							<Component/>
+						</App>
 					</StyleContext.Provider>
 				</div>
 				<script src="/assets/client.js" defer/>
@@ -65,13 +68,14 @@ const app = express();
 app.use('/static', express.static(path.join(process.cwd(), 'static')));
 app.use('/assets', express.static(path.join(process.cwd(), 'dist', 'client')));
 // TODO: Next only in dev. mode.
-app.use('/api', proxy('http://localhost:7990'));
+app.use('/api', proxy(config.localAPIAccess));
 app.get('*', async (req, resp) => {
 	//	Resolve the route.
 	let route = await router.resolve(req.path);
 	//	Create the document.
 	let document = new HTMLDocument({
 		route: req.path,
+		query: req.query,
 		title: route.title,
 		content: route.component
 	});

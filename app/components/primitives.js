@@ -8,11 +8,28 @@ import bound from 'autobind-decorator';
 import history from '../history';
 import contextual from '../app-context';
 
+/** An icon. */
+class Icon extends Component {
+	render({ name }) { return <i class={ 
+		'fa fa-' + name + ' ' + (this.props.class || '')
+	}/>; }
+}
+
+/** A "loading" spinner. */
+class Spinner extends Component {
+	render({ center }) { return (
+		<i class={ 
+			'fa fa-spinner fa-spin load-spinner' +
+			(center ? ' centered' : '')
+		}/>
+	); }
+}
+
 /** A button. */
 class Button extends Component {
 	render({ onClick, variant, icon, label }) { return (
 		<button onClick={ onClick } class={ variant || null }>
-			{ icon && <i class={ 'fa fa-' + this.props.icon }/> }
+			{ icon && <Icon name={ icon }/> }
 			{ label && <span class="label">{ label }</span> }
 		</button>
 	); }
@@ -33,21 +50,11 @@ class Link extends Component {
 		<button onClick={ this.follow } class={ 
 			(variant || '') + (context.route == href ? ' current' :'') 
 		}>
-			{ icon && <i class={ 'fa fa-' + icon }/> }
+			{ icon && <Icon name={ icon }/> }
 			<a href={ href }><span>{ label }</span></a>
 		</button>
 	); }
 }
 
-/** A "loading" spinner. */
-class Spinner extends Component {
-	render({ center }) { return (
-		<i class={ 
-			'fa fa-spinner fa-spin load-spinner' +
-			(center ? ' centered' : '')
-		}/>
-	); }
-}
-
 //	Exports.
-export { Button, Link, Spinner };
+export { Icon, Button, Link, Spinner };

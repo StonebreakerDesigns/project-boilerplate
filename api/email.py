@@ -45,6 +45,6 @@ def send_email(sender=None, to=None, subject=None, template=None,
 	#	TODO: Plaintext version.
 
 	#	Send.
-	smtp_handler = SMTP(config['email']['smtp_dest_address'])
+	smtp_handler = SMTP(config.email.smtp_dest_address)
 	smtp_handler.sendmail(sender, to, message.as_string())
 	smtp_handler.quit()

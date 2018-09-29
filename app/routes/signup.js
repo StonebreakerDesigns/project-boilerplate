@@ -2,16 +2,19 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
+import history from '../history';
 import { post } from '../request';
 import contextual from '../app-context';
+import { deauthenticate } from '../auth';
 import { Button } from '../components/primitives';
 import { 
-	Field, RequiredPasswordValidator, RequiredEmailValidator,
+	Field, FormError, RequiredPasswordValidator, RequiredEmailValidator,
 	collectFields
 } from '../components/fields';
 
 /** The signup page. */
 @contextual
+@deauthenticate
 class SignupPage extends Component {
 	constructor(props) {
 		super(props);
@@ -22,7 +25,7 @@ class SignupPage extends Component {
 
 		this.state = {
 			formError: null
-		}
+		};
 	}
 
 	@bound
@@ -34,18 +37,29 @@ class SignupPage extends Component {
 		});
 		if (!info) return;
 
-		let resp = await post({
-			route: '/users',
-			json: info
-		});
-		console.log(resp);
+		try {
+			await post({
+				route: '/users',
+				expect: 201,
+				json: info
+			});
+		}
+		catch (err) {
+			if (err.status != 422) throw err;
+			
+			this.setState({formError: err.json.message});
+			return;
+		}
+
+		await this.props.context.fetchAuth();
+		history.push('/dashboard?v=welcome');
 	}
 	
 	render({}, { formError }) { return (
 		<div id="signup-page" class="al-center">
 			<div class="col-6 max-400 component">
 				<h2>Sign up</h2>
-				{ formError && <em>{ formError }</em> }
+				<FormError error={ formError }/>
 				<Field
 					id="email"
 					type="text"

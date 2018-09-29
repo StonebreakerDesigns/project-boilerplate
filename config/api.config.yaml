@@ -1,4 +1,5 @@
 development:
+  debug: true
   log_level: debug
   echo_sql: false
 security:
@@ -15,7 +16,10 @@ security:
     allow_all_methods: false
 env:
   site_domain: localhost
+  site_protocol: http://
   api_route_prefix: /api
+email:
+  smtp_dest_address: localhost:2525
 database:
   database: project_dev
   user: project_dev_user

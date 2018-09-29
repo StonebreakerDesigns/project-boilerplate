@@ -13,6 +13,25 @@ from .log import logger
 from .expectation import ExpectationMiddleware
 from .json_ext import JSONMiddleware
 
+#	Success status map.
+SUCCESS_STATUS_MAP = {
+	200: '200 OK',
+	201: '201 Created',
+	202: '202 Accepted'
+}
+
+class IntStatusMiddleware:
+	'''A middleware that allows pure integers to be used as success status
+	codes by responders.'''
+
+	def process_response(self, req, resp, resource, succeeded):
+		'''Convert int success status codes to strings.'''
+		#	Ensure there's anything to do.
+		if not succeeded or not isinstance(resp.status, int):
+			return
+
+		resp.status = SUCCESS_STATUS_MAP[resp.status]
+
 def create_api(routing, routing_converters=None):
 	'''Create, configure, populate and return a falcon API object.
 
@@ -28,7 +47,8 @@ def create_api(routing, routing_converters=None):
 	)
 	#	Create an application.
 	application = falcon.API(middleware=list((
-		cors_policy.middleware, 
+		cors_policy.middleware,
+		IntStatusMiddleware(),
 		ExpectationMiddleware(),
 		MultipartMiddleware(),
 		JSONMiddleware()

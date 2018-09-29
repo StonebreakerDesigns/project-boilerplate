@@ -14,6 +14,16 @@ class Router {
 			),
 			'/signup': () => import(
 				/* webpackChunkName: 'signup' */ './routes/signup'
+			),
+			'/login': () => import(
+				/* webpackChunkName: 'login' */ './routes/login'
+			),
+			'/dashboard': () => import(
+				/* webpackChunkName: 'dashboard' */ './routes/dashboard'
+			),
+			'/reset-password': () => import(
+				/* webpackChunkName: 'reset-password' */ 
+				'./routes/reset-password'
 			)
 		};
 	}

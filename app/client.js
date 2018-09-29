@@ -8,6 +8,17 @@ import App from './app';
 
 //	Grab root.
 const root = document.getElementById('app');
+/** Parses a query string, returning a key, value map. */
+const parseQuery = str => {
+	let query = {},
+		pairs = (str[0] === '?' ? str.substr(1) : str).split('&');
+
+	for (let i = 0; i < pairs.length; i++) {
+		let pair = pairs[i].split('=');
+		query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+	}
+	return query;
+};
 /** The application initializer. */
 const initialize = async () => {
 	/** Load the page at the specified route. */
@@ -16,7 +27,12 @@ const initialize = async () => {
 		document.title = routeObj.title;
 		render(
 			<StyleContext.Provider value={ null }>
-				<App route={ route }><routeObj.component/></App>
+				<App 
+					route={ route } 
+					query={ parseQuery(window.location.search) }
+				>
+					<routeObj.component/>
+				</App>
 			</StyleContext.Provider>,
 			root, root.firstElementChild
 		);

@@ -24,12 +24,18 @@ CONSTRAINT_DESC_MAP = {
 log = logger(__name__)
 
 #	Internal helpers.
+#	pylint: disable=protected-access
 def _session_timeout_generator():
 	'''An authentication session timeout schedule generator.'''
-	return datetime.now() + timedelta(**config.security.session_timeout)
+	return datetime.now() + timedelta(
+		**config.security.session_timeout.__data
+	)
 def _password_reset_timeout_generator():
 	'''A password reset token timeout schedule generator.'''
-	return datetime.now() + timedelta(**config.security.password_reset_grace)
+	return datetime.now() + timedelta(
+		**config.security.password_reset_grace.__data
+	)
+#	pylint: enable=protected-access
 
 #	Decorator.
 def authenticate(*args, **kwargs):
@@ -71,7 +77,7 @@ class User(Model):
 	id                  = UUIDPrimaryKey()
 	type                = Column(Enum(
 							*ALLOWED_USER_TYPES, name='user_types'
-						  ), nullable=False, default='shop')
+						  ), nullable=False, default='basic')
 	email_address       = Column(EmailType(), unique=True, nullable=False)
 	password            = Column(PasswordType(Text, \
 							schemes=('pbkdf2_sha512',)), nullable=False)
@@ -400,11 +406,11 @@ class PasswordResetRequestEndpoint:
 		sess.add(token)
 		sess.commit()
 
-		#	XXX: Actually complete.
-		reset_url = '%s/%s?r=%s'%(
-			config.env.site_domain, 'reset-password', str(token.key)
+		#	Create the reset link.
+		reset_url = '%s%s/%s?r=%s'%(
+			config.env.site_protocol, config.env.site_domain, 'reset-password',
+			str(token.key)
 		)
-		raise NotImplementedError()
 
 		#	Send the email.
 		send_email(

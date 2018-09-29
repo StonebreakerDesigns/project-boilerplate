@@ -53,7 +53,11 @@ const request = async options => {
 		//	Setup callbacks.
 		xhr.addEventListener('load', () => {
 			if (xhr.status !== expect) {
-				reject(xhr.status, JSON.parse(xhr.response));
+				let error = {
+					status: xhr.status,
+					json: JSON.parse(xhr.response)
+				};
+				reject(error);
 			}
 
 			resolve(JSON.parse(xhr.response));

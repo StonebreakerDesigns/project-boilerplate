@@ -3,6 +3,7 @@ import { Component, h } from 'preact';
 
 import config from '../config';
 import styled from '../style-context';
+import { Icon } from './primitives';
 import style from './flash-messages.less';
 
 /** 
@@ -25,38 +26,23 @@ class FlashMessages extends Component {
 
 	/** Add a message. Powers the `flashMessage` function.  */
 	add(message) {
-		//	Create a message object.
-		let messageObj = {
-			message: message, 
-			present: false,
-			exists: true
-		};
-
 		//	Setup lifecycle.
 		let messages = [...this.state.messages];
-		messages.push(messageObj);
+		messages.push(message);
 		this.setState({ messages });
 		setTimeout(() => {
-			messageObj.present = true;
-			this.forceUpdate();
-		}, config.flashMessages.fadeTime);
-		setTimeout(() => {
-			messageObj.present = false;
-			this.forceUpdate();
-		}, config.flashMessages.totalTime - config.flashMessages.fadeTime);
-		setTimeout(() => {
-			messageObj.exists = false;
-		}, config.flashMessages.totalTime);
+			let lessMessages = [...this.state.messages];
+			lessMessages.splice(lessMessages.indexOf(message), 1);
+			this.setState({messages: lessMessages});
+		}, config.flashMessages.flashTime);
 	}
 
 	render({}, { messages }) { return (
 		<div id="flash-messages">
-			{ messages.map(mo => 
-				<div key={ mo.message } class={
-					'flash-message' + (mo.present ? ' present' : '') +
-					(mo.exists ? '' : ' hidden')
-				}>
-					{ mo.message }
+			{ messages.map((message, i) => 
+				<div key={ i } class="flash-message">
+					<Icon name="exclamation-triangle" class="warning-icon"/>
+					{ message }
 				</div>
 			) }
 		</div>

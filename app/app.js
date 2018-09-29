@@ -6,10 +6,12 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
-import { get } from './request';
+import config from './config';
+import { get, delete_ } from './request';
 import styled from './style-context';
 import { AppContext } from './app-context'; 
 import FlashMessages from './components/flash-messages';
+import { Spinner } from './components/primitives';
 import Header from './components/header';
 import style from './app.less';
 
@@ -21,15 +23,29 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 
+		this.flashMessages = null;
+		this.preloadMessageQueue = [];
+
 		//	Define state.
 		this.state = {
 			route: this.props.route,
-			user: null
+			query: this.props.query,
+			user: null,
+			authFetched: false
 		};
 	}
 
-	componentWillMount() {
-		this.fetchAuth();		
+	async componentWillMount() {
+		await this.fetchAuth();	
+	}
+
+	/** Bind the flash messages component. */
+	@bound
+	bindFlashMessages(component) {
+		this.flashMessages = component;
+
+		this.preloadMessageQueue.forEach(this.flashMessage);
+		this.preloadMessageQueue = null;
 	}
 
 	/** 
@@ -41,12 +57,29 @@ class App extends Component {
 		let authFetch = await get('/auth');
 
 		let user = authFetch.status == 'success' ? authFetch.data : null;
-		this.setState({ user });
+		this.setState({ authFetched: true, user });
+		return user;
+	}
+
+	/**
+	*	Delete the current authentication session. Should be accessed through 
+	*	the app context.
+	*/
+	@bound
+	async deleteAuth() {
+		let authClear = await delete_('/auth');
+
+		this.setState({user: null});
 	}
 
 	/** Flash a message. Should be accessed through the app context. */
 	@bound
 	flashMessage(message) {
+		if (!this.flashMessages) {
+			this.preloadMessageQueue.push(message);
+			return;
+		}
+
 		this.flashMessages.add(message);
 	}
 	/** Show the header. Should be accessed through the app context. */
@@ -60,24 +93,32 @@ class App extends Component {
 		this.header.setVisible(false);
 	}
 
-	render({ children }, { route, user }) { 
+	render({ children }, { authFetched, route, query, user }) { 
 		//	Collect app context.
 		const appContext = {
 			route: route,
+			query: query,
 			user: user,
 			fetchAuth: this.fetchAuth,
+			deleteAuth: this.deleteAuth,
 			flashMessage: this.flashMessage,
 			showHeader: this.showHeader,
 			hideHeader: this.hideHeader
 		};
+		//	Maybe provide debug access.
+		if (typeof window !== 'undefined' && config.debug) {
+			window.context = appContext;
+		}
 
 		return (
 			<div id="app-root">
-				<AppContext.Provider value={ appContext }>
-					<Header appBinding={ c => this.header = c }/>
-					{ children }
-					<FlashMessages appBinding={ c => this.flashMessages = c }/>
-				</AppContext.Provider>
+				{ !authFetched ? <Spinner/> : 
+					<AppContext.Provider value={ appContext }>
+						<Header appBinding={ c => this.header = c }/>
+						{ children }
+						<FlashMessages appBinding={ this.bindFlashMessages }/>
+					</AppContext.Provider>
+				}
 			</div>
 		); 
 	}

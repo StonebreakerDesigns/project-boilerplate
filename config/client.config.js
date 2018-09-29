@@ -1,9 +1,9 @@
 /* Application client-side configuration. */
 const config = {
+	debug: true,
 	apiURL: '/api',
 	flashMessages: {
-		fadeTime: 1000,
-		totalTime: 5000
+		flashTime: 10000
 	}
 };
 export default config;

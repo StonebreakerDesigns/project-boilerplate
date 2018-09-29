@@ -5,6 +5,13 @@ import bound from 'autobind-decorator';
 import styled from '../style-context';
 import style from './fields.less';
 
+/** A field-agnostic form error. */
+class FormError extends Component {
+	render({ error }) { return (
+		error && <div class="form-error">{ error }</div>
+	); }
+}
+
 /** A form field. Parent components must have a `submit` method. */
 @styled(style)
 class Field extends Component {
@@ -189,13 +196,12 @@ const collectFields = (parent, fieldMap) => {
 	}
 
 	if (failed) return false;
-	console.log(result);
 	return result;
 };
 
 //	Exports.
 export default Field;
 export { 
-	Field, Validator, RequiredValidator, RequiredEmailValidator,
+	FormError, Field, Validator, RequiredValidator, RequiredEmailValidator,
 	RequiredPasswordValidator, collectFields
 };

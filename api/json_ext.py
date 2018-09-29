@@ -23,7 +23,7 @@ class JSONMiddleware:
 
 	#	pylint: disable=unused-argument
 	def process_resource(self, req, resp, resource, params):
-		'''Ensure the client has supplied a JSON payload if one was 
+		'''Ensure the client has supplied a JSON payload if one was
 		expected.'''
 		#	Ensure this is a payload-friendly verb.
 		if req.method == 'GET':
@@ -64,17 +64,17 @@ class RequestJSON:
 			#	Direct population.
 			self.__data = data_dict
 		elif req is not None:
-			#	Parse data from request payload.
-			try:
-				pre_data = req.stream.read()
-				if isinstance(pre_data, bytes):
-					pre_data = pre_data.decode()
-
-				#	Defer load.
-				self.__fetch_data = lambda: json.loads(pre_data)
-			except JSONDecodeError:
-				raise BadRequest(message='Invalid JSON in request body') \
-					from None
+			#	Prepare to parse data from request payload.
+			def fetch_data():
+				try:
+					pre_data = req.stream.read()
+					if isinstance(pre_data, bytes):
+						pre_data = pre_data.decode()
+					return json.loads(pre_data)
+				except JSONDecodeError:
+					raise BadRequest(message='Invalid JSON in request body')
+			self.__fetch_data = fetch_data
+			self.__data = None
 		else:
 			raise ValueError('Must have initial content')
 
@@ -91,10 +91,10 @@ class RequestJSON:
 
 	@property
 	def data(self):
-		if not hasattr(self, '__data'):
+		if self.__data is None:
 			self.__data = self.__fetch_data()
 
-		return self.__data	
+		return self.__data
 
 	def __getitem__(self, key_and_type):
 		'''Retrieved items can be in the form of a (key, type) tuple.'''
