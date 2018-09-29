@@ -10,6 +10,7 @@ gulp.task('reset', () => {
 
 	setupDirs.forEach(dirPath => {
 		if (!fs.existsSync(dirPath)) {
+			//	eslint-disable-next-line no-console
 			console.log(`Creating ${ dirPath }`);
 			fs.mkdirSync(dirPath);
 		}
@@ -19,6 +20,7 @@ gulp.task('reset', () => {
 			if (path == 'client' || path == 'static') return;
 
 			path = dirPath + '/' + path;
+			//	eslint-disable-next-line no-console
 			console.log(`Cleaning ${ path }`);
 			fs.unlinkSync(path);
 		});

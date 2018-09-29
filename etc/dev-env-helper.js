@@ -1,4 +1,5 @@
-/* Create or destroy the webpack-dev-server environment. */
+/* eslint-disable */
+/** Create or destroy the webpack-dev-server environment. */
 const fs = require('fs');
 const { ncp } = require('ncp');
 const rmrf = require('rimraf');
@@ -19,7 +20,7 @@ const DEV_HTML_TEMPLATE = `
 		<script src="/assets/client.js"></script>
 	</body>
 </html>
-`
+`;
 
 const mode = process.argv[2];
 console.log(`Development environment: ${ mode }`);
