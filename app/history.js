@@ -1,6 +1,5 @@
-/* Server-safe history provision. */
+/** Isomorphic-safe history provision. */
 import createHistory from 'history/createBrowserHistory';
 
-//	Export nothing if we're not in the browser.
-const history = typeof window !== 'undefined' && createHistory();
-export default history;
+//	Export false if we're not in the browser.
+export default typeof window !== 'undefined' && createHistory();

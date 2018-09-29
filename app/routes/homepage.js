@@ -1,36 +1,29 @@
+/** The landing / homepage. */
 import { Component, h } from 'preact';
-import bound from 'autobind-decorator';
 
 import styled from '../styled';
-import withContext from '../app-context';
+import contextual from '../app-context';
 import style from './homepage.less';
 
-@withContext
+/** The homepage component. */
+@contextual
 @styled(style)
 class Homepage extends Component {
 	constructor(props) {
 		super(props);
-		
-		this.greetings = 1;
 	}
 
-	@bound
-	greet() {
-		this.props.context.flashMessage(`Hello, ${ this.greetings }`
-			+ ` time${ this.greetings > 1 ? 's' : '' }!`);
-		this.greetings++;
-	}
-
-	render() {
-		return <div id="landing" onClick={ this.greet }>
+	render() { return (
+		<div id="landing">
 			<img src="/static/stonebreaker.jpg"/>
-			<h1>Sup?</h1>
 			<p>You're good to go; get creating!</p>
 		</div>
-	}
+	); }
 }
-
-export default {
+const route = {
 	title: 'Landing',
 	component: Homepage
-}
+};
+
+//	Export.
+export default route;

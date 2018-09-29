@@ -1,9 +1,13 @@
-/* The 404 page component. */
+/** Routing fallback. */
 import { Component, h } from 'preact';
 
-import withContext from '../app-context';
+import contextual from '../app-context';
+import styled from '../styled';
+import style from './not-found.less';
 
-@withContext
+/** The 404 page-like component. */
+@contextual
+@styled(style)
 class NotFoundPage extends Component {
 	componentWillMount() {
 		this.props.context.hideHeader();
@@ -13,8 +17,10 @@ class NotFoundPage extends Component {
 		this.props.context.showHeader();
 	}
 
-	render() {
-		return <em>Not Found</em>
-	}
+	render() { return (
+		<em>Not Found</em>
+	); }
 }
+
+//	Export.
 export default NotFoundPage;

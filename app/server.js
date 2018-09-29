@@ -1,4 +1,4 @@
-/* The isomorphic application server. */
+/** The isomorphic application server. */
 import path from 'path';
 import express from 'express';
 import proxy from 'express-http-proxy';
@@ -10,16 +10,18 @@ import router from './router';
 import { StyleContext } from './styled';
 import App from './app';
 
+/** An HTML document to be served containing the SSRd route. */
 class HTMLDocument {
-	/* An HTML document to be served. */
 	constructor(options) {
 		this.content = options.content;
 		this.title = options.title;
 	}
 
+	/** Serialize this document as a string. */
 	serialize() {
 		//	Setup style collection.
 		let styles = [];
+		/** Adds a style to be SSRd. */
 		const addStyle = s => styles.push(s);
 		
 		//	Render.
@@ -29,7 +31,10 @@ class HTMLDocument {
 			<head>
 				<title>{ this.title }</title>
 				<link rel="icon" type="image/png" href={ config.favicon }/>
-				<meta name="viewport" content="width=device-width, initial-scale=1"/>
+				<meta 
+					name="viewport" 
+					content="width=device-width, initial-scale=1"
+				/>
 				<meta name="description" content={ config.defaultDescription }/>
 			</head>
 			<body>

@@ -1,7 +1,6 @@
-/* The client-side application initializer. */
+/** The client-side application entry point. */
 import { render, h } from 'preact';
 
-import config from '../config/client.config';
 import router from './router';
 import history from './history';
 import { StyleContext } from './styled';
@@ -9,32 +8,29 @@ import App from './app';
 
 //	Grab root.
 const root = document.getElementById('app');
+/** The application initializer. */
 const initialize = async () => {
+	/** Load the page at the specified route. */
+	const loadPage = async route => {
+		const routeObj = await router.resolve(route);
+		document.title = routeObj.title;
+		render(
+			<StyleContext.Provider value={ null }>
+				<App><routeObj.component/></App>
+			</StyleContext.Provider>,
+			root, root.firstElementChild
+		);
+	};
+
 	//	Setup history API hooks.
 	history.listen((location, action) => {
 		if (action != 'PUSH' && action != 'POP') return;
 
-		(async () => {
-			const route = await router.resolve(location.pathname);
-			document.title = route.title;
-			render(
-				<StyleContext.Provider value={ null }>
-					<App><route.component/></App>
-				</StyleContext.Provider>,
-				root, root.firstElementChild
-			);
-		})();
+		loadPage(location.pathname);
 	});
 
 	//	Load initial page.
-	const route = await router.resolve(window.location.pathname);
-	document.title = route.title;
-	render(
-		<StyleContext.Provider value={ null }>
-			<App><route.component/></App>
-		</StyleContext.Provider>, 
-		root, root.firstElementChild
-	);
+	loadPage(window.location.pathname);
 };
 
 //	Initialize.

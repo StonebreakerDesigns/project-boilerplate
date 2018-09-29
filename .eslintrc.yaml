@@ -1,0 +1,57 @@
+env:
+  browser: true
+  node: true
+  es6: true
+extends: 
+  - eslint:recommended
+  - plugin:react/recommended
+plugins:
+  - require-jsdoc-except
+parser: babel-eslint
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 2016
+  sourceType: module
+rules:
+  indent:
+    - error
+    - tab
+  linebreak-style:
+    - error
+    - windows
+  quotes:
+    - error
+    - single
+  semi:
+    - error
+    - always
+  max-len:
+    - error
+    - code: 80
+      comments: 80
+  no-unused-vars:
+    - error
+    # Allow preact pragma
+    - varsIgnorePattern: h
+  require-jsdoc-except/require-jsdoc:
+    - error
+    - require:
+        FunctionDeclaration: true
+        MethodDefinition: true
+        ClassDeclaration: true
+        ArrowFunctionExpression: true
+        FunctionExpression: true
+      ignore:
+        - constructor
+        - render
+        - componentWillMount
+        - componentDidMount
+        - componentWillUnmount
+        - componentDidUnmount
+  no-empty-pattern: 0
+  react/react-in-jsx-scope: 0
+  react/prop-types: 0
+  react/no-unescaped-entities: 0
+  react/no-deprecated: 0
+  react/no-unknown-property: 0
