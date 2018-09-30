@@ -23,7 +23,7 @@ web applications. It's built on the following stack:
 
 ## Repo setup
 
-This repository is organized into 3 main sections:
+This repository is organized into 4 main sections:
 
 * `./api` - The Python API.
 	* The `./domain` package is for domain models, logic, and endpoints.
@@ -32,3 +32,4 @@ This repository is organized into 3 main sections:
 	* The `./routes` package is for pages.
 	* The `./mixins` directory is for LESS definitions.
 * `./config` - Share configuration storage.
+* `./static` - Static presentation layer assets. 
