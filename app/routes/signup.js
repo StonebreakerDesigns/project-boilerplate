@@ -57,7 +57,7 @@ class SignupPage extends Component {
 	
 	render({}, { formError }) { return (
 		<div id="signup-page" class="al-center">
-			<div class="col-6 max-400 component">
+			<div class="col-6 max-4h component">
 				<h2>Sign up</h2>
 				<FormError error={ formError }/>
 				<Field

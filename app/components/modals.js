@@ -3,8 +3,11 @@ import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
 import { Button } from './primitives';
+import styled from '../style-context';
+import style from './modals.less';
 
 /** A modal populated with the provided children. */
+@styled(style)
 class Modal extends Component {
 	constructor(props) {
 		super(props);
@@ -13,6 +16,11 @@ class Modal extends Component {
 			//	Whether this modal is open.
 			open: false
 		};
+	}
+
+	componentWillMount() {
+		//	Use ref alternative since there's an HOC above this.
+		this.props.binding(this);
 	}
 
 	/** Open this modal. */

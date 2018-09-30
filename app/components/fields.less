@@ -1,53 +1,41 @@
-@import '../mixins/colors.less';
+@import '../mixins/all.less';
 
 .field {
 	text-align: left;
-	margin-bottom: 30px;
+	margin-bottom: @input-space-below;
 
 	label {
 		display: block;
-		margin-bottom: 10px;
-		font-size: 14pt;
+		margin-bottom: @input-label-space;
+		font-size: @input-font-size;
 	}
 	input {
 		display: block;
 		width: 100%;
-		border: none;
 		color: @darks;
-		padding: 10px;
-		font-size: 14pt;
-		border-bottom: 2px solid @borders;
-		transition: 0.3333s border-bottom;
+		background-color: inherit;
+		padding: @input-padding;
+		font-size: @input-font-size;
+		border: none;
+		border-bottom: 4px solid @borders;
+		transition: @anim-time-short border-bottom;
 	}
 	.validation-error-desc {
-		font-size: 10pt;
-		padding: 5px 0px 0px 5px;
+		font-size: @input-space-below - (@input-error-padding * 2);
+		padding: @input-error-padding 0px @input-error-padding 5px;
 		color: @warning;
 	}
 
 	&.validation-error {
-		margin-bottom: 7px;
+		margin-bottom: 0px;
+
 		input {
 			border-bottom: 4px solid @warning;
-		}
-	}
-	//	XXX: Responsive.
-	&.inline-field {
-		label {
-			display: inline-block;
-			width: 150px;
-			margin-right: 20px;
-			font-size: 11pt;
-		}
-		input {
-			display: inline-block;
-			width: calc(100% - 170px);
-			font-size: 11pt;
 		}
 	}
 }
 
 .form-error {
 	color: @warning;
-	padding-bottom: 10px;
+	padding-bottom: @form-error-space;
 }

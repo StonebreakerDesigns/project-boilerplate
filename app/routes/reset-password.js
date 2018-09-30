@@ -67,7 +67,7 @@ class ResetPasswordPage extends Component {
 					<Link label="Request another" href="/login"/> 
 				</span>
 				:
-				<div class="col-4 max-400 component">
+				<div class="col-4 max-4h component">
 					<h3>Reset your password</h3>
 					<Field
 						id="password"

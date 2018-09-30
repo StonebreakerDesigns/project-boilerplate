@@ -1,4 +1,5 @@
 @import '../mixins/colors.less';
+@import '../mixins/layout.less';
 
 .modal-container {
 	position: fixed;
@@ -11,24 +12,24 @@
 
 	.modal {
 		position: relative;
-		margin: 50px auto;
-		padding: 35px;
+		margin: @top-safety auto 0px auto;
+		padding: @common-spacing;
 		background-color: @lights;
 		color: @darks;
-		border-radius: 3px;
+		border-radius: @corners;
 
 		// XXX: Responsive.
-		width: 60vw;
-		min-width: 200px;
-		max-width: 700px;
-		max-height: calc(100vh - 100px);
+		width: @modal-width;
+		min-width: @modal-min-width;
+		max-width: @modal-max-width;
+		max-height: calc(100vh - (@top-safety * 2));
 
 		//	XXX: Bad ARIA.
 		.modal-close {
 			position: absolute;
-			top: 15px; right: 15px;
+			top: @common-spacing/2; right: @common-spacing/2;
 			cursor: pointer;
-			font-size: 13pt;
+			font-size: @action-icon-size;
 
 			&:hover { color: @theme; }
 		}

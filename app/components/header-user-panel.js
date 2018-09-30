@@ -33,7 +33,7 @@ class HeaderUserPanel extends Component {
 				</span>
 				:
 				<span>
-					<em>Not logged in</em>
+					<em class="pad-hr">Not logged in</em>
 					<Link label="Log in" href="/login"/>
 					<Link label="Sign up" href="/signup"/>
 				</span>

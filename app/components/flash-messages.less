@@ -1,8 +1,8 @@
-@import '../mixins/colors.less';
+@import '../mixins/all.less';
 
 #flash-messages {
 	position: fixed;
-	top: 70px;
+	top: @top-safety;
 	right: 0px;
 	z-index: 1000;
 	pointer-events: none;
@@ -13,11 +13,11 @@
 		background-color: @lights;
 		border: 1px solid @borders;
 		color: @darks;
-		padding: 10px;
-		padding-right: 30px;
-		margin: 10px;
-		transition: 1s transform;
-		border-radius: 2px;
+		padding: @flash-message-space;
+		padding-right: @action-icon-size * 2;
+		margin: @flash-message-space;
+		transition: @anim-time-long transform;
+		border-radius: @corners;
 
 		.content-container {
 			display: inline-block;
@@ -43,14 +43,11 @@
 		.dismiss {
 			color: @darks;
 			position: absolute;
-			top: 5px;
-			right: 5px;
-			font-size: 11pt;
+			top: 5px; right: 5px;
+			font-size: @action-icon-size;
 			cursor: pointer;
 		}
 
-		&.out {
-			transform: translateX(200%);
-		}
+		&.out { transform: translateX(200%); }
 	}
 }

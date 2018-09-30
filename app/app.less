@@ -21,7 +21,7 @@ a {
 	text-decoration: none; 
 	color: @link;
 }
-
+p, p * { font-size: @paragraph-font-size; }
 em { display: inline-block; }
 
 button {
@@ -29,10 +29,10 @@ button {
 	border: none; outline: none;
 	background-color: @success;
 	font-weight: bold; text-transform: uppercase;
-	padding: 6px 15px;
-	border-radius: 2px;
+	padding: @button-padding;
+	border-radius: @corners;
 	cursor: pointer;
-	margin: 0px 6px;
+	margin: 0px @button-spacing;
 	
 	span, i {
 		transition: 0.5s color;
@@ -43,73 +43,88 @@ button {
 	i { margin-right: 5px; }
 
 	&.warn {
-		background-color: @theme;
-		&:after { background-color: @warning; }
+		background-color: @warning;
 	}
 }
+
+h1, h2, h3, h4 { margin: 0px; }
+h1 { padding: @h1-space; }
+h2 { padding: @h2-space; }
+h3 { padding: @h3-space; }
+h4 { padding: @h4-space; }
 
 //	Helper classes.
 .hidden { display: none; }
 .pointer { cursor: pointer; }
 
-//	TODO: Complete sets and config.
 .al-left { text-align: left !important; }
 .al-right { text-align: right !important; }
 .al-center { text-align: center !important; }
+
 .fl-right { float: right; }
+.fl-left { float: left; }
 
-.max-600 { max-width: 600px; }
-.max-500 { max-width: 500px; }
-.max-400 { max-width: 400px; }
+.max-1k { max-width: 1000px; }
+.max-9h { max-width: 900px; }
+.max-8h { max-width: 800px; }
+.max-7h { max-width: 700px; }
+.max-6h { max-width: 600px; }
+.max-5h { max-width: 500px; }
+.max-4h { max-width: 400px; }
+.max-3h { max-width: 300px; }
+.max-2h { max-width: 200px; }
+.max-1h { max-width: 100px; }
 
-.pad-v { padding: 25px 0px; }
-.pad-vt { padding-top: 25px; }
-.pad-vb { padding-bottom: 25px; }
-.pad-h { padding: 0px 25px; }
-.pad { padding: 25px; }
+.pad-v { padding: @common-spacing 0px; }
+.pad-vt { padding-top: @common-spacing; }
+.pad-vb { padding-bottom: @common-spacing; }
+.pad-h { padding: 0px @common-spacing; }
+.pad-hl { padding-left: @common-spacing; }
+.pad-hr { padding-right: @common-spacing; }
+.pad { padding: @common-spacing; }
 
+//	A visible contained component.
 .component {
 	background-color: @lights-alt;
-	border-radius: 5px;
+	border-radius: @corners;
 	border: 1px solid @borders;
 }
 
-//	TODO: Config.
 //	12-column components.
 .col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
 .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
 	display: inline-block;
 	vertical-align: top;
-	padding: 15px;
-	margin: 15px;
+	padding: @common-spacing;
+	margin: @common-spacing;
 	overflow-wrap: break-word;
 }
 
-.col-12 { width: calc(100% - 30px); }
-.col-9 { width: calc(75% - 30px); }
-.col-8 { width: calc(66.6666666666% - 30px); }
-.col-6 { width: calc(50% - 30px); }
-.col-5 { width: calc(41.6666666666% - 30px); }
-.col-4 { width: calc(33.333333333333% - 30px); }
-.col-3 { width: calc(25% - 30px); }
+.col-12 { width: calc(100% - (@common-spacing * 2)); }
+.col-9 { width: calc(75% - (@common-spacing * 2)); }
+.col-8 { width: calc(66.6666666666% - (@common-spacing * 2)); }
+.col-6 { width: calc(50% - (@common-spacing * 2)); }
+.col-5 { width: calc(41.6666666666% - (@common-spacing * 2)); }
+.col-4 { width: calc(33.333333333333% - (@common-spacing * 2)); }
+.col-3 { width: calc(25% - (@common-spacing * 2)); }
 
 @media screen and (max-width: @breakpoint1){
-	.col-12, .col-9 { width: calc(100% - 30px); }
-	.col-6 { width: calc(66.66666666% - 30px); }
-	.col-4 { width: calc(50% - 30px); }
-	.col-3 { width: calc(33.333333% - 30px); }
+	.col-12, .col-9 { width: calc(100% - (@common-spacing * 2)); }
+	.col-6 { width: calc(66.66666666% - (@common-spacing * 2)); }
+	.col-4 { width: calc(50% - (@common-spacing * 2)); }
+	.col-3 { width: calc(33.333333% - (@common-spacing * 2)); }
 }
 
 @media screen and (max-width: @breakpoint2) {
-	.col-6, .col-8 { width: calc(100% - 30px); }
-	.col-3 { width: calc(50% - 30px); }
+	.col-6, .col-8 { width: calc(100% - (@common-spacing * 2)); }
+	.col-3 { width: calc(50% - (@common-spacing * 2)); }
 }
 
 @media screen and (max-width: @breakpoint3) {
-	.col-4, .col-3 { width: calc(100% - 30px); }
+	.col-4, .col-3 { width: calc(100% - (@common-spacing * 2)); }
 }
 
-//	TODO: Organize
+//	Misc. primitives.
 .load-spinner {
 	&.centered {
 		position: absolute;
@@ -121,13 +136,9 @@ button {
 .badge {
 	display: inline-block;
 	vertical-align: top;
-	padding: 3px 10px;
-	margin-right: 3px;
-	border-radius: 2px;
-	font-size: 10pt;
+	padding: @badge-padding;
+	border-radius: @corners;
+	font-size: @badge-font-size;
 	color: @lights;
-	background-color: @darks;
-
-	&.bg-a { background-color: @success; }
-	&.bg-b { background-color: @theme; }
+	background-color: @theme;
 }

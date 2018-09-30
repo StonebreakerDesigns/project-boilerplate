@@ -85,7 +85,7 @@ class LoginPage extends Component {
 	render({}, { formError, resetRequest }) { return (
 		<div id="login-page" class="al-center">
 			{ !resetRequest ?
-				<div class="col-6 max-400 component">
+				<div class="col-6 max-4h component">
 					<h2>Log in</h2>
 					<FormError error={ formError }/>
 					<Field

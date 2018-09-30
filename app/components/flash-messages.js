@@ -15,6 +15,7 @@ class FlashMessages extends Component {
 	constructor(props) {
 		super(props);
 
+		this.currentID = 0;
 		this.state = {
 			messages: []
 		};
@@ -26,23 +27,43 @@ class FlashMessages extends Component {
 
 	/** Add a message. Powers the `flashMessage` function.  */
 	add(message) {
-		//	Setup lifecycle.
+		let messageObj = {
+			id: this.currentID++,
+			content: message,
+			out: true
+		};
+
+		//	Create.
 		let messages = [...this.state.messages];
-		messages.push(message);
+		messages.push(messageObj);
 		this.setState({ messages });
+
+		//	Setup lifecycle.
+		setTimeout(() => {
+			messageObj.out = false;
+			this.forceUpdate();
+		}, 10);
+		setTimeout(() => {
+			messageObj.out = true;
+			this.forceUpdate();
+		}, config.flashMessages.flashTime);
 		setTimeout(() => {
 			let lessMessages = [...this.state.messages];
-			lessMessages.splice(lessMessages.indexOf(message), 1);
+			lessMessages.splice(lessMessages.indexOf(messageObj), 1);
 			this.setState({messages: lessMessages});
-		}, config.flashMessages.flashTime);
+		}, config.flashMessages.flashTime + 1000);
 	}
 
 	render({}, { messages }) { return (
 		<div id="flash-messages">
-			{ messages.map((message, i) => 
-				<div key={ i } class="flash-message">
+			{ messages.map(msg => 
+				<div key={ msg.id } class={
+					'flash-message' + (msg.out ? ' out' : '')
+				}>
 					<Icon name="exclamation-triangle" class="warning-icon"/>
-					{ message }
+					<div class="content-container">
+						{ msg.content }
+					</div>
 				</div>
 			) }
 		</div>
