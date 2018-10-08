@@ -1,5 +1,5 @@
 # coding: utf-8
-'''Centralized falcon uWSGI application object creation.'''
+'''Centralized falcon WSGI application object creation.'''
 import json
 import falcon
 

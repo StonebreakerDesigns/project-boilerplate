@@ -4,7 +4,7 @@ import yaml
 
 def write_setup_sql():
 	'''Return the SQL.'''
-	with open('./config.api.yaml') as config_file:
+	with open('./config/api.config.yaml') as config_file:
 		config = yaml.load(config_file)['database']
 
 	return '\n'.join((

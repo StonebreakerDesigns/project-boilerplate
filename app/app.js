@@ -35,6 +35,19 @@ class App extends Component {
 		};
 	}
 
+	/** Maybe update the route and query if they changed. */
+	componentDidUpdate(prevProps) {
+		let { route, query } = this.props;
+		
+		if (route == prevProps.route && query == prevProps.query) {
+			return;
+		}
+		
+		this.setState({
+			route, query
+		});
+	}
+
 	async componentWillMount() {
 		await this.fetchAuth();	
 	}

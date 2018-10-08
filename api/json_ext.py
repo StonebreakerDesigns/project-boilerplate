@@ -49,6 +49,8 @@ class JSONMiddleware:
 		full_json = {'status': 'failure' if was_failure else 'success'}
 		if hasattr(resp, 'json'):
 			full_json['data'] = resp.json
+		if hasattr(resp, 'json_metadata'):
+			full_json.update(resp.json_metadata)
 		#	Serialize.
 		resp.body = json.dumps(full_json, default=ext_serializer)
 
@@ -91,10 +93,22 @@ class RequestJSON:
 
 	@property
 	def data(self):
+		'''The data underlying this wrapper.'''
 		if self.__data is None:
 			self.__data = self.__fetch_data()
 
 		return self.__data
+
+	def get(self, key_and_type, default_value):
+		'''Retrieve a value or return a default.'''
+		key = key_and_type
+		if isinstance(key, (list, tuple)):
+			key, _ = key
+
+		if key not in self:
+			return default_value
+
+		return self[key_and_type]
 
 	def __getitem__(self, key_and_type):
 		'''Retrieved items can be in the form of a (key, type) tuple.'''

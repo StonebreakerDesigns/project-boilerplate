@@ -51,7 +51,7 @@ class Link extends Component {
 			(variant || '') + (context.route == href ? ' current' :'') 
 		}>
 			{ icon && <Icon name={ icon }/> }
-			<a href={ href }><span>{ label }</span></a>
+			<a href={ href }><span class="label">{ label }</span></a>
 		</button>
 	); }
 }

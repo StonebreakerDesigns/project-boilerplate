@@ -32,12 +32,11 @@ class ExpectationMiddleware:
 		responder = getattr(resource, 'on_%s'%req.method.lower())
 
 		#	Maybe die on method.
-		#	TODO: Assert this is a case.
 		if not responder:
 			#	Collect methods that *are* allowed.
 			allowed_here = list()
 			for meth_name in ALLOWED_METHODS:
-				if getattr(resource, 'on_%s'%meth_name):
+				if getattr(resource, 'on_%s'%meth_name, None):
 					allowed_here.append(meth_name)
 			#	Raise.
 			raise MethodNotAllowed(allowed_here)

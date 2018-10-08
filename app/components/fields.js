@@ -113,7 +113,7 @@ class Field extends Component {
 					id={ id } 
 					ref={ i => this.input = i }
 					name="__unlabeled"
-					type={ type } 
+					type={ type || 'text' } 
 					placeholder={ placeholder } 
 					value={ value } 
 					onKeyUp={ this.handleKeyUp }
@@ -140,13 +140,13 @@ class Validator {
 }
 
 /** A field completion validator. */
-class RequiredValidator {
+class RequiredValidator extends Validator {
 	validate(value, strict=false) {
 		return strict && value == '' && 'Required';
 	}
 }
 /** A validator for required email addresses. */
-class RequiredEmailValidator {
+class RequiredEmailValidator extends Validator {
 	validate(value, strict=false) {
 		if (value == '') {
 			return strict && 'Required';
@@ -163,7 +163,7 @@ class RequiredEmailValidator {
 * A validator for required password field. Must correspond with the one on 
 * the server, if good user experience is a requirement. 
 */
-class RequiredPasswordValidator {
+class RequiredPasswordValidator extends Validator {
 	validate(value, strict=false) {
 		if (value == '') {
 			return strict && 'Required';

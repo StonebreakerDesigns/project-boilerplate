@@ -1,6 +1,6 @@
 # coding: utf-8
 '''Boilerplate for an API powered by Falcon and SQLAlchemy over Postgres. This
-root module exports `application`, the uWSGI application, and `serve()`, a
+root module exports `application`, the WSGI application, and `serve()`, a
 function. that can be used for debugging service.'''
 import os
 import sys
