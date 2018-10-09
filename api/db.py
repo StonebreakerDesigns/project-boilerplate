@@ -69,16 +69,17 @@ def UUIDPrimaryKey(): # pylint: disable=invalid-name
 	'''A canonical UUID primary key column.'''
 	return Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-def dictize_attrs(obj, attrs):
+def dictize_attrs(obj, user, attrs):
 	'''Return a dictization of `obj` containing for the given attribute set.
 
 	:param obj: The object to dictize.
+	:param user: The currently authenticated user.
 	:param attrs: An iterable of attributes to dictize.
 	'''
 	#	Define recursion helper.
 	def dictize_models(item):
 		if isinstance(item, Model):
-			return item.dictize()
+			return item.dictize(user)
 		elif isinstance(item, (list, tuple)):
 			return list(
 				dictize_models(sub_item) for sub_item in item

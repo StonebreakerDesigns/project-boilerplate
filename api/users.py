@@ -5,7 +5,8 @@ import uuid
 from datetime import datetime, timedelta
 
 from .config import config
-from .errors import Unauthorized, Forbidden, BadRequest, UnprocessableEntity
+from .errors import SecurityError, Unauthorized, Forbidden, BadRequest, \
+	UnprocessableEntity
 from .log import logger
 from .db import Model, Column, ForeignKey, DateTime, EmailType, PasswordType, \
 	Text, Enum, UUIDPrimaryKey, UUID, Boolean, IntegrityError, relationship, \
@@ -162,13 +163,13 @@ class User(Model):
 			secure=not config.development.debug
 		)
 
-	def dictize(self, user=None): #	pylint: disable=unused-argument
+	def dictize(self, user): #	pylint: disable=unused-argument
 		'''Return a dictization of the user.'''
 		#	Don't expose sensitive info!
-		if not user or not (user is self or user.type == 'admin'):
-			return dict()
+		if not (user is self or user.type == 'admin'):
+			raise SecurityError()
 
-		return dictize_attrs(self, (
+		return dictize_attrs(self, user, (
 			'id', 'type', 'email_address', 'api_key', 'created_at'
 		))
 

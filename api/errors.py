@@ -3,6 +3,10 @@
 falcon's implementations.'''
 import falcon
 
+class SecurityError(Exception):
+	'''Always protect security-critical areas with an assertion on this
+	exception.'''
+
 class CanonicalHTTPError(falcon.HTTPError):
 	'''The base class of all custom HTTP-status correspondant errors.'''
 
