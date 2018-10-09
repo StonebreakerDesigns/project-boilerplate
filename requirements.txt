@@ -2,6 +2,7 @@
 pyyaml
 falcon
 falcon-cors
+falcon_multipart
 werkzeug
 sqlalchemy
 sqlalchemy_utils

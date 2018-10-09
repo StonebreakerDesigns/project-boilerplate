@@ -10,7 +10,7 @@ from .log import logger
 from .db import Model, Column, ForeignKey, DateTime, EmailType, PasswordType, \
 	Text, Enum, UUIDPrimaryKey, UUID, Boolean, IntegrityError, relationship, \
 	get_error_description, query_and, with_session, dictize_attrs
-from .email import send_email
+from .emails import send_email
 
 #	TODO: Password constraints.
 
