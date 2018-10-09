@@ -24,7 +24,11 @@ class HTMLDocument {
 		//	Setup style collection.
 		let styles = [];
 		/** Adds a style to be SSRd. */
-		const addStyle = s => styles.push(s);
+		const addStyle = s => {
+			if (styles.indexOf(s) >= 0) return;
+
+			styles.push(s);
+		};
 		
 		//	Render.
 		const Component = this.content;
