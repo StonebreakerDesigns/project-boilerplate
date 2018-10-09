@@ -30,6 +30,5 @@ This repository is organized into 4 main sections:
 * `./app` - The isomorphic JavaScript application.
 	* The `./components` package is for reusable components.
 	* The `./routes` package is for pages.
-	* The `./mixins` directory is for LESS definitions.
 * `./config` - Share configuration storage.
 * `./static` - Static presentation layer assets. 
