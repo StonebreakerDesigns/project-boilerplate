@@ -1,11 +1,9 @@
-#	Boilerplate requirements:
+#	Boilerplate requirements.
 pyyaml
 falcon
 falcon-cors
 werkzeug
 sqlalchemy
+sqlalchemy_utils
 psycopg2
 jinja2
-
-#	Project requirements:
-#	XXX: Any project-specific requirements here.
