@@ -8,7 +8,7 @@ from .config import config
 from .log import logger
 
 #	Create a logger.
-log = logger(__name__)
+log = logger(__name__) # pylint: disable=invalid-name
 
 #	Create the Jinja environment.
 jinja_environ = Environment( #	pylint: disable=invalid-name
@@ -16,7 +16,7 @@ jinja_environ = Environment( #	pylint: disable=invalid-name
 )
 
 # pylint: disable=invalid-name, bad-continuation
-def send_email(sender=None, to=None, subject=None, template=None, 
+def send_email(sender=None, to=None, subject=None, template=None,
 		context=None):
 	'''Send an email.
 	:param sender: The fully qualified sender.
@@ -42,7 +42,6 @@ def send_email(sender=None, to=None, subject=None, template=None,
 	message.attach(text.MIMEText(
 		jinja_environ.get_template(template).render(**context), 'html'
 	))
-	#	TODO: Plaintext version.
 
 	#	Send.
 	smtp_handler = SMTP(config.email.smtp_dest_address)

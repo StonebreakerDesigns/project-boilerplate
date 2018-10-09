@@ -12,8 +12,6 @@ from .db import Model, Column, ForeignKey, DateTime, EmailType, PasswordType, \
 	get_error_description, query_and, with_session, dictize_attrs
 from .emails import send_email
 
-#	TODO: Password constraints.
-
 #	Define the set of allowed user types.
 ALLOWED_USER_TYPES = ('basic', 'admin')
 CONSTRAINT_DESC_MAP = {
@@ -39,7 +37,7 @@ def _password_reset_timeout_generator():
 
 #	Decorator.
 def authenticate(*args, **kwargs):
-	'''A decorator that adds an authentication precondition to a responder. 
+	'''A decorator that adds an authentication precondition to a responder.
 	Must follow the `db.with_session` decorator. The keyword argument `authz`
 	can specify an authorization requirement. If it isn't, the decorator
 	should be used without a call.'''
@@ -65,8 +63,7 @@ def authenticate(*args, **kwargs):
 	#	Handle appropriate variant.
 	if kwargs:
 		return meth_extender
-	else:
-		return meth_extender(args[0])
+	return meth_extender(args[0])
 
 #	Models.
 class User(Model):
@@ -81,9 +78,9 @@ class User(Model):
 	email_address       = Column(EmailType(), unique=True, nullable=False)
 	password            = Column(PasswordType(Text, \
 							schemes=('pbkdf2_sha512',)), nullable=False)
-	api_key             = Column(UUID(as_uuid=True), nullable=False, 
+	api_key             = Column(UUID(as_uuid=True), nullable=False,
 						  	default=uuid.uuid4)
-	created_at          = Column(DateTime, nullable=False, 
+	created_at          = Column(DateTime, nullable=False,
 							default=datetime.now)
 	#	pylint: enable=bad-continuation, bad-whitespace
 
@@ -127,7 +124,7 @@ class User(Model):
 
 	@classmethod
 	def get_authenticated(cls, req, sess):
-		'''Return the user currently authenticated for the given `req` or 
+		'''Return the user currently authenticated for the given `req` or
 		`None`.'''
 		#	Try API key authentication.
 		api_key = req.get_header(config.security.api_key_header)
@@ -155,7 +152,7 @@ class User(Model):
 		return None
 
 	def authorize_session(self, resp, sess):
-		'''Authorize this user by modifying the given `req` to store a session 
+		'''Authorize this user by modifying the given `req` to store a session
 		token in the configured cookie key.'''
 		user_session = UserSession(self.id)
 		sess.add(user_session)
@@ -166,6 +163,7 @@ class User(Model):
 		)
 
 	def dictize(self, user=None): #	pylint: disable=unused-argument
+		'''Return a dictization of the user.'''
 		#	Don't expose sensitive info!
 		if not user or not (user is self or user.type == 'admin'):
 			return dict()
@@ -174,12 +172,11 @@ class User(Model):
 			'id', 'type', 'email_address', 'api_key', 'created_at'
 		))
 
-#	TODO: Needs unit tests.
 class UserSession(Model):
 	'''A `UserSession` is an expiring token based authentication scheme. The
 	key of a user's current authentication session is stored in their cookie
 	session.
-	This class should almost never be referenced directly; use the 
+	This class should almost never be referenced directly; use the
 	`@authenticate` decorator for everyday needs.
 	'''
 	#	pylint: disable=bad-continuation, bad-whitespace
@@ -212,7 +209,7 @@ class UserSession(Model):
 		return query_and(cls.expiry >= datetime.now(), cls.canceled == False)
 
 	def cancel(self):
-		'''Cancel this session. Once a session is canceled, the authentication 
+		'''Cancel this session. Once a session is canceled, the authentication
 		API will never expose that session again.'''
 		self.canceled = True
 
@@ -308,9 +305,9 @@ class UserInstanceEndpoint:
 		#	Retrieve user to edit.
 		to_edit = User.rest_get(id, sess)
 
-		#	Perform edits.		
+		#	Perform edits.
 		if 'email_address' in req.json:
-			to_edit.email_address = req.json[('email_address', str)] 
+			to_edit.email_address = req.json[('email_address', str)]
 		if 'password' in req.json:
 			#	Assert this-instant auth.
 			if to_edit.password != req.json[('current_password', str)]:
@@ -338,7 +335,7 @@ class AuthEndpoint:
 
 	@with_session
 	def on_get(self, req, resp, sess):
-		'''Return a JSON playload that describes the currently authenticated 
+		'''Return a JSON playload that describes the currently authenticated
 		user under its "user" key.'''
 		user = User.get_authenticated(req, sess)
 
@@ -391,7 +388,7 @@ class PasswordResetRequestEndpoint:
 
 	@with_session
 	def on_post(self, req, resp, sess):
-		'''Send a password reset link to the email specified in the request 
+		'''Send a password reset link to the email specified in the request
 		JSON, if it is registered.'''
 		#	Parse request body.
 		email_address = req.json[('email_address', str)]
@@ -427,8 +424,8 @@ class PasswordResetEndpoint:
 
 	@with_session
 	def on_post(self, req, resp, sess):
-		'''Reset the password of the user to which the token supplied in the 
-		request JSON is associated. The JSON must also include a new 
+		'''Reset the password of the user to which the token supplied in the
+		request JSON is associated. The JSON must also include a new
 		password.'''
 		#	Parse request body.
 		token_key = req.json[('reset_token', uuid.UUID)]
