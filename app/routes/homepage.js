@@ -35,10 +35,9 @@ class Homepage extends Component {
 		</div>
 	); }
 }
-const route = {
+
+//	Export.
+export default {
 	title: 'Landing',
 	component: Homepage
 };
-
-//	Export.
-export default route;
