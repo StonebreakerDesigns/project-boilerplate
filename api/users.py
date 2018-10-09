@@ -166,7 +166,7 @@ class User(Model):
 	def dictize(self, user): #	pylint: disable=unused-argument
 		'''Return a dictization of the user.'''
 		#	Don't expose sensitive info!
-		if not (user is self or user.type == 'admin'):
+		if not user or not (user is self or user.type == 'admin'):
 			raise SecurityError()
 
 		return dictize_attrs(self, user, (
