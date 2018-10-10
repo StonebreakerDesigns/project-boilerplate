@@ -62,6 +62,10 @@ class ConfirmModal extends Component {
 		this.state = this.nullState;
 	}
 
+	componentWillMount() {
+		this.props.binding(this);
+	}
+
 	/** 
 	*	Asynchronously perform a confirmation, returning a boolean value.
 	*	@param message The question to ask the user.
