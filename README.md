@@ -39,6 +39,9 @@ This repository is organized into 4 main sections:
 
 `pip install -r requirements.txt`
 
+Setup the Database 
+`py -3 .\etc\write_setup_sql.py | psql --username=postgres`
+
 `npm start`
 
 You may need to specify port or python version in `package.json`
