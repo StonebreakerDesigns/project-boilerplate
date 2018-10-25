@@ -36,8 +36,9 @@ This repository is organized into 4 main sections:
 ## Installation
 
 `npm install`
+
 `pip install -r requirements.txt`
-`pip install werkzeug`
+
 `npm start`
 
-* You may need to specify port or python version in `package.json`
+You may need to specify port or python version in `package.json`
