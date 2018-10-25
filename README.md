@@ -32,3 +32,12 @@ This repository is organized into 4 main sections:
 	* The `./routes` package is for pages.
 * `./config` - Share configuration storage.
 * `./static` - Static presentation layer assets. 
+
+## Installation
+
+`npm install`
+`pip install -r requirements.txt`
+`pip install werkzeug`
+`npm start`
+
+* You may need to specify port or python version in `package.json`
