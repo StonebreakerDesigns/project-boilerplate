@@ -1,12 +1,8 @@
-/** 
-*	Basic components. The styling for these components lives in the base 
-*	stylesheet.
-*/
+/**  Basic components. */
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
 import history from '../history';
-import contextual from '../app-context';
 
 /** An icon. */
 class Icon extends Component {
@@ -27,32 +23,29 @@ class Spinner extends Component {
 
 /** A button. */
 class Button extends Component {
-	render({ onClick, variant, icon, label }) { return (
-		<button onClick={ onClick } class={ variant || null }>
+	render({ icon, label, ...props }) { return (
+		<button {...props}>
 			{ icon && <Icon name={ icon }/> }
-			{ label && <span class="label">{ label }</span> }
+			{ label }
 		</button>
 	); }
 }
 
 /** A link. */
-@contextual
 class Link extends Component {
 	/** Follow this link. */
 	@bound
 	follow(event=null) {
-		history.push(this.props.href);
-
+		let { href } = this.props;
+		history.push(href);
 		if (event) event.preventDefault();
 	}
 
-	render({ href, context, variant, icon, label }) { return (
-		<button onClick={ this.follow } class={ 
-			(variant || '') + (context.route == href ? ' current' :'') 
-		}>
+	render({ href, icon, label, ...props }) { return (
+		<a class={ props.class } href={ href } onClick={ this.follow }>
 			{ icon && <Icon name={ icon }/> }
-			<a href={ href }><span class="label">{ label }</span></a>
-		</button>
+			{ label }
+		</a>
 	); }
 }
 

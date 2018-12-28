@@ -6,6 +6,7 @@ security:
   max_content_length: 25000
   api_key_header: X-API-Key
   auth_cookie_key: auth-session
+  cookie_secret: not-prod-safe
   session_timeout:
     days: 1
   password_reset_grace:
@@ -23,4 +24,4 @@ email:
 database:
   database: project_dev
   user: project_dev_user
-  password: notprodsafe
+  password: not-prod-safe

@@ -11,24 +11,15 @@
 
 	.modal {
 		position: relative;
-		margin: @top-safety auto 0px auto;
-		padding: @common-spacing;
-		background-color: @lights;
-		color: @darks;
+		margin: @space*3 auto 0px auto;
+		padding: @space;
+		background-color: @near-white;
 		border-radius: @corners;
 
-		// XXX: Responsive.
-		width: @modal-width;
-		min-width: @modal-min-width;
-		max-width: @modal-max-width;
-		max-height: calc(100vh - (@top-safety * 2));
-
-		//	XXX: Bad ARIA.
-		.modal-close {
+		.modal-exit {
 			position: absolute;
-			top: @common-spacing/2; right: @common-spacing/2;
+			top: @space/2; right: @space/2;
 			cursor: pointer;
-			font-size: @action-icon-size;
 
 			&:hover { color: @theme; }
 		}

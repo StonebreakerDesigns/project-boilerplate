@@ -2,67 +2,48 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
+import styled from '../bind-style';
 import history from '../history';
-import { post } from '../request';
-import contextual from '../app-context';
-import { deauthenticate } from '../auth';
+import { noUser } from '../authorities';
+import { post } from '../requests';
 import { Button } from '../components/primitives';
 import { 
-	Field, FormError, RequiredPasswordValidator, RequiredEmailValidator,
-	collectFields
+	Field, FormError, required, passwordFormat, emailFormat, mergeValidators
 } from '../components/fields';
+import style from './login.less';
 
 /** The login page. */
-@contextual
-@deauthenticate
+@styled(style)
 class LoginPage extends Component {
 	constructor(props) {
 		super(props);
 
-		//	Create validators.
-		this.emailValidator = new RequiredEmailValidator();
-		this.passwordValidator = new RequiredPasswordValidator();
-
-		this.state = {
-			formError: null,
-			resetRequest: false
-		};
+		this.state = { error: null, reseting: false };
 	}
 
 	/** Handle password reset workflow start. */
 	@bound
-	handleResetStart() {
-		this.setState({resetRequest: true});
-	}
+	handleResetStart() { this.setState({reseting: true}); }
 	/** Handle password reset workflow backout. */
 	@bound
-	cancelResetRequest() {
-		this.setState({resetRequest: false});
-	}
+	cancelResetRequest() { this.setState({reseting: false}); }
+
 	/** Send a password reset request. */
 	@bound
 	async requestPasswordReset() {
-		let request = collectFields(this, {
-			email: 'email_address'
-		});
+		let request = this.fields.collect_();
 		if (!request) return;
 
 		await post({
 			route: '/auth/request-password-reset',
 			json: request
 		});
-		const context = this.props.context;
-		//	eslint-disable-next-line quotes
-		context.flashMessage("We've sent your reset link");
-		this.setState({resetRequest: false});
+		this.setState({reseting: false});
 	}
 
 	@bound
 	async submit() {
-		let credentials = collectFields(this, {
-			email: 'email_address',
-			password: 'password'
-		});
+		let credentials = this.fields.collect_();
 		if (!credentials) return;
 
 		try {
@@ -74,7 +55,7 @@ class LoginPage extends Component {
 		catch (err) {
 			if (err.status != 401) throw err;
 
-			this.setState({formError: err.json.message});
+			this.setState({error: err.json.message});
 			return;
 		}
 
@@ -82,53 +63,44 @@ class LoginPage extends Component {
 		history.push(this.props.context.query.r || '/dashboard');
 	}
 
-	render({}, { formError, resetRequest }) { return (
-		<div id="login-page" class="al-center">
-			{ !resetRequest ?
-				<div class="col-6 max-4h component">
+	render({}, { error, reseting }) { return (
+		<div id="login-page">
+			{ !reseting ?
+				<div class="login-area">
 					<h2>Log in</h2>
-					<FormError error={ formError }/>
+					<FormError error={ error }/>
 					<Field
-						id="email"
-						type="text"
+						parent={ this } id="email_address"
 						label="Email address"
-						validator={ this.emailValidator }
-						parent={ this }
+						validator={ mergeValidators(required, emailFormat) }
 					/>
 					<Field
-						id="password"
-						type="password"
-						label="Password"
-						validator={ this.passwordValidator }
-						parent={ this }
+						parent={ this } id="password"
+						type="password" label="Password"
+						validator={ mergeValidators(required, passwordFormat) }
 					/>
-					<div class="al-right">
+					<div class="login-actions">
 						<Button label="Sign in" onClick={ this.submit }/>
 					</div>
-					<em 
-						class="pad-vt pointer"
-						onClick={ this.handleResetStart }
-					>Forgot your password?</em>
+					<div onClick={ this.handleResetStart }>
+						Forgot your password?
+					</div>
 				</div>
 				:
-				<div class="col-6 max-400 component">
+				<div class="reset-area">
 					<h3>Request password reset</h3>
 					<p>
 						Enter your email address and we'll send you a reset
 						link.
 					</p>
 					<Field
-						id="email"
-						type="text"
+						parent={ this } id="email"
 						label="Your email address"
 						validator={ this.emailValidator }
-						parent={ this }
 					/>
-					<div class="al-right">
+					<div class="reset-actions">
 						<Button 
-							label="Cancel" 
-							variant="warn" 
-							onClick={ this.cancelResetRequest }
+							label="Cancel" onClick={ this.cancelResetRequest }
 						/>
 						<Button
 							label="Send reset link"
@@ -143,5 +115,6 @@ class LoginPage extends Component {
 
 export default {
 	title: 'Log in',
+	authority: noUser,
 	component: LoginPage
 };

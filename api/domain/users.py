@@ -4,20 +4,19 @@ import uuid
 
 from datetime import datetime, timedelta
 
-from .config import config
-from .errors import SecurityError, Unauthorized, Forbidden, BadRequest, \
+from ..config import config
+from ..errors import SecurityError, Unauthorized, Forbidden, BadRequest, \
 	UnprocessableEntity
-from .log import logger
-from .db import Model, Column, ForeignKey, DateTime, EmailType, PasswordType, \
-	Text, Enum, UUIDPrimaryKey, UUID, Boolean, IntegrityError, relationship, \
-	get_error_description, query_and, with_session, dictize_attrs
-from .emails import send_email
+from ..log import logger
+from ..db import Model, Column, PrimaryKeyColumn, ForeignKeyColumn, DateTime, \
+	EmailType, PasswordType, Text, Enum, UUID, Boolean, IntegrityError, \
+	relationship, get_error_description, query_and, with_session, \
+	contains_eager, dictize_attrs
+from ..emails import send_email
 
 #	Define the set of allowed user types.
 ALLOWED_USER_TYPES = ('basic', 'admin')
-CONSTRAINT_DESC_MAP = {
-	'email_address': 'That email address is taken'
-}
+CONSTRAINT_DESC_MAP = {'email_address': 'That email address is taken'}
 
 #	Create a logger.
 log = logger(__name__)
@@ -72,7 +71,7 @@ class User(Model):
 	#	Describe table.
 	#	pylint: disable=bad-continuation, bad-whitespace
 	__tablename__       = 'users'
-	id                  = UUIDPrimaryKey()
+	id                  = PrimaryKeyColumn()
 	type                = Column(Enum(
 							*ALLOWED_USER_TYPES, name='user_types'
 						  ), nullable=False, default='basic')
@@ -93,18 +92,13 @@ class User(Model):
 	def get_for_session_key(cls, key, sess):
 		'''Return the user associated with the given non-expired session `key`
 		or `None`.'''
-		user_session = sess.query(UserSession).filter(query_and(
+		user_session = sess.query(UserSession).options(
+			contains_eager(UserSession.user)
+		).filter(query_and(
 			UserSession.key == key,
 			UserSession.where_current()
 		)).first()
 		return user_session.user if user_session else None
-
-	@classmethod
-	def get_by_api_key(cls, api_key, sess):
-		'''Return the user identified by the valid `api_key` or `None`.'''
-		return sess.query(cls).filter(
-			cls.api_key == api_key
-		).first()
 
 	@classmethod
 	def get_by_email_address(cls, email_address, sess):
@@ -137,7 +131,7 @@ class User(Model):
 				raise BadRequest(message='Invalid API Key')
 
 			#	Return the user or raise an appropriate error for this scheme.
-			user = cls.get_by_api_key(api_key, sess)
+			user = sess.query(cls).filter(cls.api_key == api_key).first()
 			if user is None:
 				raise Unauthorized(message='Invalid API Key')
 
@@ -178,16 +172,16 @@ class UserSession(Model):
 	key of a user's current authentication session is stored in their cookie
 	session.
 	This class should almost never be referenced directly; use the
-	`@authenticate` decorator for everyday needs.
-	'''
+	`@authenticate` decorator for everyday needs.'''
+	#	Describe table.
 	#	pylint: disable=bad-continuation, bad-whitespace
 	__tablename__   = 'user_sessions'
-	key             = UUIDPrimaryKey()
+	key             = PrimaryKeyColumn()
 	expiry          = Column(DateTime(), nullable=False, \
 						default=_session_timeout_generator)
-	user_id         = Column(UUID(as_uuid=True), ForeignKey('users.id'), \
-						nullable=False)
+	user_id         = ForeignKeyColumn('users.id', nullable=False)
 	canceled        = Column(Boolean(), nullable=False, default=lambda: False)
+	#	Relationships.
 	user            = relationship('User', lazy='joined')
 	#	pylint: enable=bad-continuation, bad-whitespace
 
@@ -216,14 +210,15 @@ class UserSession(Model):
 
 class PasswordResetToken(Model):
 	'''Password reset tokens are sent in links to account emails.'''
+	#	Describe table.
 	#	pylint: disable=bad-continuation, bad-whitespace
 	__tablename__   = 'password_reset_tokens'
-	key             = UUIDPrimaryKey()
+	key             = PrimaryKeyColumn()
 	expiry          = Column(DateTime(), nullable=False, \
 						default=_password_reset_timeout_generator)
-	user_id         = Column(UUID(as_uuid=True), ForeignKey('users.id'), \
-						nullable=False)
+	user_id         = ForeignKeyColumn('users.id', nullable=False)
 	used            = Column(Boolean, nullable=False, default=False)
+	#	Relationships.
 	user            = relationship('User')
 	#	pylint: enable=bad-continuation, bad-whitespace
 
@@ -236,9 +231,7 @@ class PasswordResetToken(Model):
 		'''Return the unexpired, unused reset token with key `key`. The caller
 		must mark the key as used.'''
 		return sess.query(cls).filter(query_and(
-			cls.key == key,
-			cls.expiry > datetime.now(),
-			cls.used == False # pylint: disable=singleton-comparison
+			cls.key == key, cls.expiry > datetime.now(), cls.used == False
 		)).first()
 
 #	Endpoints.
@@ -256,10 +249,7 @@ class UserCollectionEndpoint:
 			)
 
 		#	Create the user.
-		user = User(
-			req.json[('email_address', str)],
-			password
-		)
+		user = User(req.json[('email_address', str)], password)
 		sess.add(user)
 
 		#	Try and create.
@@ -278,19 +268,6 @@ class UserCollectionEndpoint:
 		#	Respond.
 		resp.status = 201
 		resp.json = {'created_id': user.id}
-
-	@with_session
-	@authenticate(authz='admin')
-	def on_get(self, req, resp, sess, user):
-		'''Return the user manifest to an authenticated administrator.'''
-		#	Create the base query.
-		query = sess.query(User)
-
-		#	XXX: Filter query.
-
-		#	Execute query and respond.
-		users = query.all()
-		resp.json = list(u.dictize(user) for u in users)
 
 class UserInstanceEndpoint:
 	'''User instance resource. Must be routed with a UUID parameter.'''
@@ -384,8 +361,34 @@ class AuthEndpoint:
 
 		resp.unset_cookie(cookie_key)
 
-class PasswordResetRequestEndpoint:
-	'''Password reset request.'''
+#	TODO: Wipe all active tokens on success.
+class PasswordResetEndpoint:
+	'''Password reset machinery. POST to create token, PUT to use.'''
+
+	@with_session
+	def on_put(self, req, resp, sess):
+		'''Reset the password of the user to which the token supplied in the
+		request JSON is associated. The JSON must also include a new
+		password.'''
+		#	Parse request body.
+		token_key = req.json[('reset_token', uuid.UUID)]
+		new_password = req.json[('password', str)]
+
+		#	Assert the passwords match.
+		if new_password != req.json['confirm_password']:
+			raise UnprocessableEntity(message="Passwords didn't match")
+
+		#	Retrieve the token.
+		token = PasswordResetToken.get_by_key(token_key, sess)
+		if not token:
+			raise UnprocessableEntity(
+				message='That reset link has expired or does not exist'
+			)
+
+		#	Reset the password.
+		token.user.password = new_password
+		token.used = True
+		sess.commit()
 
 	@with_session
 	def on_post(self, req, resp, sess):
@@ -418,32 +421,33 @@ class PasswordResetRequestEndpoint:
 			context={'reset_url': reset_url}
 		)
 
-#	TODO: Wipe all active tokens on success.
-class PasswordResetEndpoint:
-	'''Password reset via email-sourced token. A page must exist in the app
-	that utilizes this.'''
+class LocalSessionCheckEndpoint:
+	'''An endpoint exposed only to the app to check authentication sessions.'''
 
 	@with_session
-	def on_post(self, req, resp, sess):
-		'''Reset the password of the user to which the token supplied in the
-		request JSON is associated. The JSON must also include a new
-		password.'''
-		#	Parse request body.
-		token_key = req.json[('reset_token', uuid.UUID)]
-		new_password = req.json[('password', str)]
+	def on_get(self, req, resp, sess):
+		'''Return the user type for the current user if there is one.'''
+		#	Check input.
+		cookie_val = req.get_secure_cookie(config.security.auth_cookie_key)
+		log.debug('Session check %s', cookie_val)
+		if not cookie_val:
+			resp.json = {'type': None}
+			return
 
-		#	Assert the passwords match.
-		if new_password != req.json['confirm_password']:
-			raise UnprocessableEntity(message="Passwords didn't match")
+		try:
+			auth_sess_id = uuid.UUID(cookie_val)
+		except ValueError:
+			raise BadRequest(message='No.')
 
-		#	Retrieve the token.
-		token = PasswordResetToken.get_by_key(token_key, sess)
-		if not token:
-			raise UnprocessableEntity(
-				message='That reset link has expired or does not exist'
-			)
+		#	Retrieve and assert any.
+		row = sess.query(User.id, User.type)\
+			.join(UserSession).filter(query_and(
+				UserSession.key == auth_sess_id,
+				UserSession.where_current()
+			)).first()
+		if not row:
+			resp.json = {'type': None}
+			return
 
-		#	Reset the password.
-		token.user.password = new_password
-		token.used = True
-		sess.commit()
+		#	Describe.
+		resp.json = {'type': row[1]}

@@ -1,8 +1,4 @@
-/**
-*	Isomorphic component styling. Used by passing the stylesheet-imported style
-*	object to the default export of this module as a higher order component of
-*	the target component.
-*/
+/** Isomorphic component styling. */
 import { Component, h } from 'preact';
 import { createContext } from 'preact-context';
 
@@ -26,22 +22,17 @@ const _withStyleContext = StyleContextedComponent => {
 	};
 };
 
-/**
-*	A style-binding HOC. Specifying lazyness will cause the styles not to
-*	render on the server-side.
-*/
-const styled = (style, lazy=false) => {
-	return StyledComponent => {
-		/** The result HOC of the style binding. */
-		class StyleInjectedComponent extends Component {
+/** A style-binding HOC. */
+const styled = style => {
+	return StyledComponent => (
+		//	eslint-disable-next-line react/display-name
+		_withStyleContext(class extends Component {
 			constructor(props) {
 				super(props);
 
-				//	If we're on the server and eager, register the style for
-				//	render.
-				if (this.props._addStyle) {
-					this.props._addStyle(style);
-				}
+				//	If we're on the server register the style for render.
+				let { _addStyle } = this.props;
+				if (_addStyle) _addStyle(style);
 			}
 
 			componentDidMount() {
@@ -57,12 +48,8 @@ const styled = (style, lazy=false) => {
 			render() { return (
 				<StyledComponent {...this.props}/>
 			); }
-		}
-
-		//	Export as lazy or not.
-		if (lazy) return StyleInjectedComponent;
-		return _withStyleContext(StyleInjectedComponent);
-	};
+		})
+	);
 };
 
 //	Exports.

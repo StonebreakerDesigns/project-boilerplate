@@ -1,7 +1,5 @@
 # coding: utf-8
-'''Boilerplate for an API powered by Falcon and SQLAlchemy over Postgres. This
-root module exports `application`, the WSGI application, and `serve()`, a
-function. that can be used for debugging service.'''
+'''The API.'''
 import os
 import sys
 
@@ -19,19 +17,21 @@ from .api_factory import create_api
 log = logger(__name__) #	pylint: disable=invalid-name
 
 #	Import endpoints.
-from .users import AuthEndpoint, UserCollectionEndpoint, \
-	UserInstanceEndpoint, PasswordResetEndpoint, PasswordResetRequestEndpoint
+#	pylint: disable=wrong-import-position
+from .domain.users import AuthEndpoint, UserCollectionEndpoint, \
+	UserInstanceEndpoint, PasswordResetEndpoint, LocalSessionCheckEndpoint
+#	pylint: enable=wrong-import-position
 
 #	Initialize system.
 create_models()
 
 #	Create WSGI application.
-application = create_api({ #	pylint: disable=invalid-name
+application = create_api({ # pylint: disable=invalid-name
 	'/users': UserCollectionEndpoint(),
 	'/users/{id:uuid}': UserInstanceEndpoint(),
 	'/auth': AuthEndpoint(),
-	'/auth/request-password-reset': PasswordResetRequestEndpoint(),
-	'/auth/password-reset': PasswordResetEndpoint()
+	'/auth/pass-reset': PasswordResetEndpoint(),
+	'/--auth-check': LocalSessionCheckEndpoint()
 })
 
 #	Define debug helper.

@@ -9,3 +9,4 @@ sqlalchemy_utils
 psycopg2
 jinja2
 passlib
+itsdangerous

@@ -3,38 +3,29 @@ import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
 import history from '../history';
-import { post } from '../request';
-import contextual from '../app-context';
-import { deauthenticate } from '../auth';
+import styled from '../bind-style';
+import contextual from '../bind-context';
+import { post } from '../requests';
+import { noUser } from '../authorities';
 import { Button } from '../components/primitives';
-import { 
-	Field, FormError, RequiredPasswordValidator, RequiredEmailValidator,
-	collectFields
+import {
+	Field, FormError, required, passwordFormat, emailFormat, mergeValidators
 } from '../components/fields';
+import style from './signup.less';
 
 /** The signup page. */
 @contextual
-@deauthenticate
+@styled(style)
 class SignupPage extends Component {
 	constructor(props) {
 		super(props);
 
-		//	Create validators.
-		this.emailValidator = new RequiredEmailValidator();
-		this.passwordValidator = new RequiredPasswordValidator();
-
-		this.state = {
-			formError: null
-		};
+		this.state = { error: null };
 	}
 
 	@bound
 	async submit() {
-		let info = collectFields(this, {
-			email: 'email_address',
-			password: 'password',
-			confirmPassword: 'confirm_password'
-		});
+		let info = this.fields.collect_();
 		if (!info) return;
 
 		try {
@@ -55,33 +46,27 @@ class SignupPage extends Component {
 		history.push('/dashboard?v=welcome');
 	}
 	
-	render({}, { formError }) { return (
-		<div id="signup-page" class="al-center">
-			<div class="col-6 max-4h component">
+	render({}, { error }) { return (
+		<div id="signup-page">
+			<div class="signup-area">
 				<h2>Sign up</h2>
-				<FormError error={ formError }/>
+				<FormError error={ error }/>
 				<Field
-					id="email"
-					type="text"
+					parent={ this } id="email_address"
 					label="Email address"
-					validator={ this.emailValidator }
-					parent={ this }
+					validator={ mergeValidators(required, emailFormat) }
 				/>
 				<Field
-					id="password"
-					type="password"
-					label="Password"
-					validator={ this.passwordValidator }
-					parent={ this }
+					parent={ this } id="password"
+					type="password" label="Password"
+					validator={ mergeValidators(required, passwordFormat) }
 				/>
 				<Field
-					id="confirmPassword"
-					type="password"
-					label="Confirm password"
-					validator={ this.passwordValidator }
-					parent={ this }
+					parent={ this } id="confirm_password"
+					type="password" label="Confirm password"
+					validator={ mergeValidators(required, passwordFormat) }
 				/>
-				<div class="al-right">
+				<div class="signup-actions">
 					<Button label="Sign up" onClick={ this.submit }/>
 				</div>
 			</div>
@@ -92,5 +77,6 @@ class SignupPage extends Component {
 //	Export.
 export default {
 	title: 'Sign Up',
+	authority: noUser,
 	component: SignupPage
 };

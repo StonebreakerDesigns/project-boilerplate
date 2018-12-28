@@ -3,6 +3,7 @@
 	"plugins": [
 		["transform-react-jsx", {"pragma": "h"}],
 		"transform-decorators-legacy",
-		"syntax-dynamic-import"
+		"syntax-dynamic-import",
+		"transform-object-rest-spread"
 	]
 }

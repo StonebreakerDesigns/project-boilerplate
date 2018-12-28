@@ -2,10 +2,50 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
-import styled from '../style-context';
+import styled from '../bind-style';
 import style from './fields.less';
 
-/** A field-agnostic form error. */
+/** A on-component storage for child fields. */
+class FieldStore {
+	constructor() {
+		this._fieldSet = [];
+	}
+
+	/** Register a field (module protected). */
+	_addField(key, field) {
+		this._fieldSet.push(key);
+		this[key] = field;
+	}
+
+	/** Unregister a field (module protected). */
+	_removeField(key) {
+		this._fieldSet = this._fieldSet.filter(k => k != key);
+		delete this[key];
+	}
+
+	/** The only exposed property for collecting fields. */
+	collect_({ exclude }) {
+		let toCollect = this._fieldSet.filter(
+			k => (!exclude) || (exclude.indexOf(k) >= 0)
+		);
+
+		let result = {}, failed = false;
+		toCollect.forEach(key => {
+			if (!this[key].validateStrict()) {
+				failed = true;
+				return;
+			}
+
+			result[key] = this[key].value;
+		});
+
+		if (failed) return false;
+		return result;
+	}
+}
+
+/** A generic form error. */
+@styled(style)
 class FormError extends Component {
 	render({ error }) { return (
 		error && <div class="form-error">{ error }</div>
@@ -30,178 +70,114 @@ class Field extends Component {
 	constructor(props) {
 		super(props);
 
-		//	Will be populated with the input element.
 		this.input = null;
-		this.state = {
-			//	The current value.
-			value: props.value || '', 
-			//	The current validation error.
-			validationError: null
-		};
+		this.state = { value: props.value || '', error: null };
 	}
 
-	componentWillMount() {
-		//	Bind to parent.
-		if (!('fields' in this.props.parent)) {
-			this.props.parent.fields = {};
+	componentDidMount() {
+		let { id, parent } = this.props;
+		if (!('fields' in parent)) {
+			parent.fields = new FieldStore();
 		}
-		this.props.parent.fields[this.props.id] = this;
+		parent.fields._addField(id, this);
+	}
+
+	componentWillUnmount() {
+		let { id, parent } = this.props;
+		parent.fields._removeField(id);
 	}
 
 	/** The field value. */
-	get value() { 
-		/* The current value of this field. */
-		if (this.props.type == 'number') {
-			if (this.state.value === null) return null;
-			return +this.state.value;
-		}
-		return this.state.value; 
-	}
-	//	eslint-disable-next-line require-jsdoc-except/require-jsdoc
-	set value(newValue) { this.setState({value: newValue}); }
+	get value() {
+		let { type } = this.props, { value } = this.state;
 
-	/** Handle a key raise event. */
+		if (type == 'number') {
+			if (value === null) return null;
+			return +value;
+		}
+		return value; 
+	}
+	/** Set the value. */
+	set value(newValue) {
+		this.setState({value: newValue});
+	}
+
+	/** Handle an input event. */
 	@bound
-	handleKeyUp(event) {
+	handleInput(event) {
+		let { parent, validator } = this.props;
 		if (event.keyCode == 13) {
-			this.props.parent.submit();
+			if (parent.submit) parent.submit();
 			return;
 		}
+		let { value } = this.input, error = null;
 
-		let value = this.input.value;
-		let validationError = null;
-		if (this.props.validator) { 
-			validationError = this.props.validator.validate(value, false);
-		}
-		this.setState({ value, validationError });
-		
+		//	Validate.
+		if (validator) error = validator(value, false);
 		//	Maybe inform parent.
-		if (this.props.parent.childFieldChanged) {
-			this.props.parent.childFieldChanged(this);
-		}
+		if (parent.fieldChanged) parent.fieldChanged(this);
+
+		//	Update.
+		this.setState({ value, error });
 	}
 
-	/** Strictly validate this field, to see if the value is submit-ready. */
+	/** Strictly validate this field. */
 	validateStrict() {
-		if (!this.props.validator) return true;
+		let { validator } = this.props;
+		if (!validator) return true;
 		
-		let validationError = this.props.validator.validate(
-			this.state.value, true
-		);
-		this.setState({ validationError });
-		return !validationError;
+		let error = validator(this.state.value, true);
+		this.setState({ error });
+		return !error;
 	}
 
 	/** Invalidate this field with the given error. */
-	invalidate(validationError) {
-		this.setState({validationError: validationError});
+	invalidate(error) {
+		this.setState({ error });
 	}
 
-	render(
-		{ id, label, type, placeholder, container, variant }, 
-		{ value, validationError }
-	) {
-		const baseClass = (
-			'field ' + (variant || '') + ' ' + (container || '') + 
-			(validationError ? ' validation-error' : '')
-		);
-		
-		return (
-			<div class={ baseClass }>
-				<label htmlFor={ id }>{ label }</label>
-				<input
-					id={ id } 
-					ref={ i => this.input = i }
-					name="__unlabeled"
-					type={ type || 'text' } 
-					placeholder={ placeholder } 
-					value={ value } 
-					onKeyUp={ this.handleKeyUp }
-				/>
-				{ validationError && <div class="validation-error-desc">
-					{ validationError }
-				</div> }
-			</div>
-		);
-	}
+	render({ id, label, type, placeholder, ...props }, { value, error }) { return (
+		<div class={
+			'field ' + (props.class || '') + ' ' +  (error ? ' error' : '')
+		}>
+			{ label && <label for={ id }>{ label }</label> }
+			<input
+				id={ id } 
+				ref={ i => this.input = i }
+				type={ type || 'text' } 
+				placeholder={ placeholder } 
+				value={ value } 
+				onKeyUp={ this.handleInput }
+			/>
+			{ error && <div class="error-text">{ error }</div> }
+		</div>
+	); }
 }
 
-//	Define validation API.
-/** A validator for validation fields. Has a single method, `validate`. */
-class Validator {
-	/** 
-	*	Validate a value. If `strict` is false, the user is currently entering 
-	*	the value. Return an error description if validation fails, or a falsey 
-	*	value if there is not error.
-	*/
-	validate(value, strict=false) { // eslint-disable-line no-unused-vars
-		throw new Error('Not implemented');
-	}
-}
+//	Define base validators.
+/** The singleton required validator. */
+const required = (value, strict=false) => strict && !value && 'Required';
 
-/** A field completion validator. */
-class RequiredValidator extends Validator {
-	validate(value, strict=false) {
-		return strict && value == '' && 'Required';
-	}
-}
-/** A validator for required email addresses. */
-class RequiredEmailValidator extends Validator {
-	validate(value, strict=false) {
-		if (value == '') {
-			return strict && 'Required';
-		}
-		//	eslint-disable-next-line no-useless-escape
-		if (!/[\w\.\-]+@[\-\w]+(?:\.[\-\w]+)+/.test(value)) {
-			return 'Invalid email address format';
-		}
+/** Create regex validator. */
+const regexValidator = (regex, error='Invalid format') => (
+	value => !regex.test(value) && error
+);
 
-		return false;
-	}
-}
-/** 
-* A validator for required password field. Must correspond with the one on 
-* the server, if good user experience is a requirement. 
-*/
-class RequiredPasswordValidator extends Validator {
-	validate(value, strict=false) {
-		if (value == '') {
-			return strict && 'Required';
-		}
-		//	eslint-disable-next-line no-useless-escape
-		if (!/.{8,}/.test(value)) {
-			return 'Must be 8 or more characters';
-		}
+/** An email address validator. */
+const emailFormat = regexValidator(
+	/[\w.-]+@[-\w]+(?:\.[-\w]+)+/, 'Invalid email address format'
+);
 
-		return false;
-	}
-}
+/** A password validator. */
+const passwordFormat = regexValidator(/.{8,}/, 'Too short');
 
-//	Define helpers.
-/** 
-*	Collect a set of fields from the given parent into a JSON payload, given 
-*	a `fieldMap` of field IDs to JSON keys.
-*/
-const collectFields = (parent, fieldMap) => {
-	let result = {},
-		failed = false;
-
-	for (let key in fieldMap) {
-		if (!parent.fields[key].validateStrict()) {
-			failed = true;
-			continue;
-		}
-
-		result[fieldMap[key]] = parent.fields[key].value;
-	}
-
-	if (failed) return false;
-	return result;
-};
+/** A validator combinator. */
+const mergeValidators = (...validators) => (value, strict=false) => (
+	validators.map(fn => fn(value, strict)).filter(err => err)[0] || null
+);
 
 //	Exports.
-export default Field;
 export { 
-	FormError, Field, Validator, RequiredValidator, RequiredEmailValidator,
-	RequiredPasswordValidator, collectFields
+	FormError, Field, required, regexValidator, emailFormat,
+	passwordFormat, mergeValidators
 };

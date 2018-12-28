@@ -2,16 +2,15 @@
 
 #header {
 	height: @header-height;
-	transition: @anim-time height;
 	background-color: @theme;
 	overflow-y: hidden;
 
 	&.collapsed { height: 0px; }
 	
 	.brand, #user-panel {
-		padding: 0px 20px;
+		padding: 0px @space;
 		line-height: @header-height;
-		color: @lights;
+		color: @near-white;
 		display: inline-block;
 	}
 	#user-panel { float: right; }

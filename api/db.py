@@ -10,7 +10,7 @@ from sqlalchemy import Column, ForeignKey, and_ as query_and, \
 from sqlalchemy.sql import text as raw_sql
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship, reconstructor, \
-	sessionmaker as _sessionmaker
+	sessionmaker as _sessionmaker, contains_eager
 from sqlalchemy.types import JSON, DateTime, Text, Integer, Boolean, Enum, \
 	Float
 from sqlalchemy.dialects.postgresql import UUID
@@ -23,7 +23,7 @@ from .errors import BadRequest, NotFound
 from .log import logger
 
 #	Create a logger.
-log = logger(__name__)
+log = logger(__name__) # pylint: disable=invalid-name
 
 #	pylint: disable=invalid-name
 #	Create the universal SQLAlchemy database connection string.
@@ -42,6 +42,19 @@ Session = _sessionmaker(bind=_engine)
 
 #	Classes.
 class _Model:
+	id = None
+
+	@classmethod
+	def id_check(cls, check_id, sess):
+		'''Return whether or not an instance exists with the given ID.'''
+		return sess.query(cls).filter(cls.id == check_id).count() > 0
+
+	@classmethod
+	def rest_id_check(cls, check_id, sess):
+		'''Return that an instance exists with the given ID or raise a 404.'''
+		if not cls.id_check(check_id, sess):
+			raise NotFound()
+		return True
 
 	@classmethod
 	def get(cls, check_id, sess):
@@ -52,10 +65,8 @@ class _Model:
 	def rest_get(cls, check_id, sess):
 		'''Return the instance of a model with the given ID or raise a 404.'''
 		inst = cls.get(check_id, sess)
-		#	Assert found.
 		if inst is None:
 			raise NotFound()
-
 		return inst
 
 	def dictize(self, user=None):
@@ -65,17 +76,20 @@ class _Model:
 Model = _declarative_base(cls=_Model)
 
 #	Helpers.
-def UUIDPrimaryKey(): # pylint: disable=invalid-name
+def PrimaryKeyColumn(): # pylint: disable=invalid-name
 	'''A canonical UUID primary key column.'''
 	return Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+def ForeignKeyColumn(target, **kwargs): # pylint: disable=invalid-name
+	'''A foreign key to a canonical UUID primary key column.'''
+	return Column(UUID(as_uuid=True), ForeignKey(target), **kwargs)
 
 def dictize_attrs(obj, user, attrs):
 	'''Return a dictization of `obj` containing for the given attribute set.
 
 	:param obj: The object to dictize.
 	:param user: The currently authenticated user.
-	:param attrs: An iterable of attributes to dictize.
-	'''
+	:param attrs: An iterable of attributes to dictize.'''
 	#	Define recursion helper.
 	def dictize_models(item):
 		if isinstance(item, Model):
@@ -113,37 +127,10 @@ def with_session(meth):
 	def meth_with_session_provided(*args, **kwargs):
 		session = Session()
 		try:
-			rv = meth(*args, session, **kwargs)
+			ret_val = meth(*args, session, **kwargs)
 			session.close()
-			return rv
+			return ret_val
 		except BaseException as ex:
 			session.close()
 			raise ex
 	return meth_with_session_provided
-
-def apply_meta_params_to_query(req, cls, query, allowed_orders):
-	'''Canonically apply the query string of `req` to the given query.'''
-	#	Define a casting helper.
-	def safe_cast(val, typ):
-		try:
-			return typ(val)
-		except:
-			raise BadRequest(message='Invalid query string') from None
-
-	#	Apply the parameters.
-	for key, value in req.params.items():
-		if key == 'count':
-			query = query.limit(safe_cast(value, int))
-		elif key == 'offset':
-			query = query.offset(safe_cast(value, int))
-		elif key == 'order':
-			#	Assert data safety.
-			if value not in allowed_orders:
-				raise BadRequest(message='Invalid order %s'%value)
-
-			#	Modify ordering.
-			query = query.order_by(getattr(cls, value).desc())
-		else:
-			raise BadRequest(message='Unrecognized parameter %s'%key)
-
-	return query

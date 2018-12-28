@@ -12,9 +12,7 @@ def measure():
 		'html': [0, 0],
 		'bat': [0, 0],
 		'sh': [0, 0],
-		'yaml': [0, 0],
-		'json': [0, 0],
-		'svg': [0, 0]
+		'yaml': [0, 0]
 	}
 
 	for dirn, u_trash, filens in os.walk('.'):

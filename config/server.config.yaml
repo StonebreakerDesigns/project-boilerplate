@@ -1,0 +1,5 @@
+development:
+	debug: true
+	assetAccess: http://localhost:7991
+env:
+	apiAccess: http://localhost:7990

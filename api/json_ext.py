@@ -139,4 +139,5 @@ class RequestJSON:
 		return key in self.data
 
 	def items(self):
+		'''Return the items in this request dict.'''
 		return self.data.items()

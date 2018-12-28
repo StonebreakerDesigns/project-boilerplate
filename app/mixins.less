@@ -1,0 +1,18 @@
+/* Mixin definitions. */
+@import './config.less';
+
+/** Declare a font-face import. */
+.font-face-import(@name, @path) {
+	@font-face {
+		font-family: @name;
+		src: e('url(@{path})');
+		font-weight: bold;
+	}
+}
+
+/** Center and width-restrict a page. */
+.centered-page() {
+	margin: 0px auto;
+	padding-top: @space*4;
+	max-width: @max-page-width;
+}

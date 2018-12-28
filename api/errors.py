@@ -75,7 +75,7 @@ class MethodNotAllowed(CanonicalHTTPError):
 	'''When the resource can't be used with the current method.'''
 
 	def __init__(self, allowed_meths):
-		super().__init__(404, 'Method Not Allowed', {
+		super().__init__(405, 'Method Not Allowed', {
 			'headers': {
 				'Allow': ', '.join(a.upper() for a in allowed_meths)
 			}

@@ -1,8 +1,12 @@
+/** Webpack configuration. */
 const path = require('path');
+const webpack = require('webpack');
 const merge = require('webpack-merge');
 
-//	Common configuration.
-const common = {
+/** Generate the shared configuration segement. */
+const shared = (name, ...entries) => ({
+	name,
+	entry: ['babel-polyfill', './app/' + name + '.js', ...entries],
 	mode: 'development',
 	module: {
 		rules: [
@@ -15,14 +19,7 @@ const common = {
 				use: [
 					{loader: 'isomorphic-style-loader'},
 					{loader: 'css-loader'},
-					{
-						loader: 'less-loader',
-						options: {
-							paths: [path.resolve(
-								__dirname, 'node_modules/@fortawesome'
-							)]
-						}
-					}
+					{loader: 'less-loader'}
 				]
 			},
 			{
@@ -34,18 +31,21 @@ const common = {
 			},
 			{
 				test: /\.svg$/,
+				use: 'preact-svg-loader',
+			},
+			{
+				test: /\.yaml$/,
 				use: [
-					{loader: 'preact-svg-loader'}
-				],
+					{loader: 'json-loader'},
+					{loader: 'yaml-loader'}
+				]
 			}
 		]
 	}
-};
+});
 
 //	Export client and server builds.
-module.exports = [merge(common, {
-	entry: ['babel-polyfill', './app/client.js'],
-	name: 'client',
+module.exports = [merge(shared('client'), {
 	output: {
 		path: path.resolve(__dirname, './dist/client'),
 		filename: 'client.js',
@@ -53,16 +53,18 @@ module.exports = [merge(common, {
 	},
 	devServer: {
 		contentBase: 'dist',
-		proxy: {
-			'/api': 'http://localhost:7990'
-		}
+		port: 7991
 	}
-}), merge(common, {
-	entry: ['babel-polyfill', './app/server.js'],
+}), merge(shared('server', 'webpack/hot/poll?1000'), {
 	name: 'server',
 	output: {
 		path: path.resolve(__dirname, './dist'),
 		filename: 'server.js'
 	},
+	plugins: [
+		// https://github.com/brianc/node-postgres/issues/838
+		new webpack.IgnorePlugin(/^pg-native$/),
+		new webpack.HotModuleReplacementPlugin({quiet: true})
+	],
 	target: 'node'
 })];

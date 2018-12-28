@@ -28,11 +28,11 @@ rules:
     - always
   max-len:
     - error
-    - code: 80
-      comments: 80
+    - code: 100
+      comments: 100
   no-unused-vars:
     - error
-    # Allow preact pragma
+    # Allow preact pragma.
     - varsIgnorePattern: h
   # Configure documentation requirements.
   require-jsdoc-except/require-jsdoc:

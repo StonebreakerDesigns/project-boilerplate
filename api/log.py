@@ -9,7 +9,7 @@ LEVEL_OPTIONS = list((
 	'notset', 'debug', 'info', 'warning', 'error', 'critical'
 ))
 
-def setup_logger_supply():
+def _setup_logger_supply():
 	'''Create and return a logger generator.'''
 	configured_level = config.development.log_level
 
@@ -28,4 +28,4 @@ def setup_logger_supply():
 	return create_log
 
 #	Define the callable that can be used to create properly configured loggers.
-logger = setup_logger_supply() #	pylint: disable=invalid-name
+logger = _setup_logger_supply() # pylint: disable=invalid-name

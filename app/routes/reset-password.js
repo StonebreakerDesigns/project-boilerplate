@@ -2,44 +2,28 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
+import styled from '../bind-style';
 import history from '../history';
-import contextual from '../app-context';
-import { post } from '../request';
-import { deauthenticate } from '../auth';
+import { post } from '../requests';
+import { noUser } from '../authorities';
 import { Link, Button } from '../components/primitives';
-import { 
-	Field, RequiredPasswordValidator, collectFields
-} from '../components/fields';
+import { Field, required, passwordFormat, mergeValidators } from '../components/fields';
+import style from './reset-password';
 
 /** The password reset page. */
-@contextual
-@deauthenticate
+@styled(style)
 class ResetPasswordPage extends Component {
 	constructor(props) {
 		super(props);
 
-		this.passwordValidator = new RequiredPasswordValidator();
-
-		this.state = {
-			tokenExpired: false
-		};
-	}
-
-	componentWillMount() {
-		if (!this.props.context.query.r) {
-			//	Invalid link.
-			history.push('/not-found');
-		}
+		this.state = { tokenExpired: false };
 	}
 
 	@bound
 	async submit() {
-		let reset = collectFields(this, {
-			password: 'password',
-			confirmPassword: 'confirm_password'
-		});
+		let reset = this.fields.collect_();
 		if (!reset) return;
-		reset.reset_token = this.props.context.query.r;
+		reset.reset_token = this.props.templated.token;
 
 		try {
 			await post({
@@ -54,36 +38,30 @@ class ResetPasswordPage extends Component {
 			return;
 		}
 
-		this.props.context.flashMessage('Your password has been reset.');
 		history.push('/login');
 	}
 
 	render({}, { tokenExpired }) { return (
-		<div id="password-reset-page" class="al-center">
+		<div id="password-reset-page">
 			{ tokenExpired ?
 				<span>
-					<em class="pad-vb">This reset link has expired</em>
-					<br/>
+					<div class="link-expired">This reset link has expired</div>
 					<Link label="Request another" href="/login"/> 
 				</span>
 				:
-				<div class="col-4 max-4h component">
+				<div class="reset-area">
 					<h3>Reset your password</h3>
 					<Field
-						id="password"
-						type="password"
-						label="Password"
-						validator={ this.passwordValidator }
-						parent={ this }
+						parent={ this } id="password"
+						type="password" label="Password"
+						validator={ mergeValidators(required, passwordFormat) }
 					/>
 					<Field
-						id="confirmPassword"
-						type="password"
-						label="Confirm password"
-						validator={ this.passwordValidator }
-						parent={ this }
+						parent={ this } id="confirm_password"
+						type="password" label="Confirm password"
+						validator={ mergeValidators(required, passwordFormat) }
 					/>
-					<div class="al-right">
+					<div class="reset-actions">
 						<Button label="Reset password" onClick={ this.submit }/>
 					</div>
 				</div>
@@ -94,6 +72,7 @@ class ResetPasswordPage extends Component {
 
 //	Exports.
 export default { 
-	title: 'Reset your password',
+	title: 'Password Reset',
+	authority: noUser,
 	component: ResetPasswordPage 
 };

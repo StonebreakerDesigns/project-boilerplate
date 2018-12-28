@@ -1,11 +1,8 @@
-/** 
-*	Isomorphic API request provision. On the server, requests to the API can 
-*	only transact JSON with the API as a design principle.
-*/
+/** Client-side request provision. */
 import config from './config';
 
 /**
-*	Asynchronously send an HTTP request to the API.
+*	Asynchronously send an HTTP request.
 *	@param options Request configuration.
 *	@param options.route The target endpoint route.
 *	@param options.method The request method. Each method has a member function
@@ -22,7 +19,9 @@ const request = async options => {
 			reject(new Error('Route or method not specified'));
 		}
 		//	Route onto API.
-		options.route = config.apiURL + options.route;
+		if (!options.external) {
+			options.route = config.env.apiURL + options.route;
+		}
 
 		//	Compute the status code to expect.
 		let expect = options.expect || 200;

@@ -11,6 +11,7 @@ from .errors import InternalServerError
 from .config import config
 from .log import logger
 from .expectation import ExpectationMiddleware
+from .cookies import SecureCookieMiddleware
 from .json_ext import JSONMiddleware
 
 #	Success status map.
@@ -39,8 +40,7 @@ def create_api(routing, routing_converters=None):
 	mapping with which to populate the API.
 	:param routing_converters: A map of route-converter keys to converter
 	objects. See the falcon documentation for more about in-route variable
-	conversion.
-	'''
+	conversion.'''
 	#	Configure CORS.
 	cors_policy = CORSPolicy(
 		**config.security.cors_policy.__data # pylint: disable=protected-access
@@ -50,6 +50,7 @@ def create_api(routing, routing_converters=None):
 		cors_policy.middleware,
 		IntStatusMiddleware(),
 		ExpectationMiddleware(),
+		SecureCookieMiddleware(),
 		MultipartMiddleware(),
 		JSONMiddleware()
 	)))
