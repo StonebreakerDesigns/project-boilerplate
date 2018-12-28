@@ -8,6 +8,7 @@ import { h } from 'preact';
 import { render } from 'preact-render-to-string';
 
 import config from '../config/server.config.json';
+import logger from './log';
 import { NotFound, SeeOther, Forbidden } from './errors';
 import router from './router';
 import { StyleContext } from './bind-style';
@@ -18,6 +19,9 @@ const METADATA_VALUE_KEYS = {
 	twitter: 'content',
 	og: 'property'
 };
+
+//	Create a logger.
+const log = logger('server');
 
 //	Attach hooks.
 process.on('unhandledRejection', err => {
@@ -100,6 +104,7 @@ const getAuthLevel = req => new Promise((resolve, reject) => {
 	}, (err, resp, body) => {
 		if (err) { reject(err); return; }
 
+		log.info('getAuthLevel: ' + body.data);
 		resolve(body.data);
 	});
 });
@@ -114,10 +119,12 @@ const createFetch = req => route => new Promise((resolve, reject) => {
 	}, (err, resp, body) => {
 		if (err) { reject(err); return; }
 		
+		log.debug('fetch::status', resp.statusCode);
 		if (resp.statusCode == 404) throw new NotFound();
 		if (resp.statusCode == 401) throw new SeeOther('/login');
 		if (resp.statusCode == 403) throw new Forbidden();
 
+		log.info('fetch::data', body.data);
 		resolve(body.data);
 	});
 });
@@ -128,13 +135,18 @@ const serveDocument = async (route, req, resp) => {
 	let { 
 		status, title, description, data, metadata, provider, component, templated, authority
 	} = await router.resolve(route);
+	log.debug('serveDocument::initial', status);
 	
 	try { 
 		//	Maybe run the auth. check.
-		if (authority) authority(await getAuthLevel(req));
+		if (authority) {
+			log.debug('serveDocument::authority');
+			authority(await getAuthLevel(req));
+		}
 
 		//	Maybe run the provider.
 		if (provider) {
+			log.debug('serveDocument::provider templated', templated);
 			let provided = await provider(templated, createFetch(req));
 
 			//	Use provided.
@@ -147,10 +159,12 @@ const serveDocument = async (route, req, resp) => {
 	catch (ex) {
 		//	If there was a canonical error, handle appropriately.
 		if (ex instanceof NotFound) {
+			log.debug('serveDocument -> 404');
 			await serveDocument('/--not-found--', req, resp);
 			return;
 		}
 		if (ex instanceof SeeOther) {
+			log.debug('serveDocument -> 303');
 			resp.status(303).set({
 				'Content-Type': 'text/plain',
 				'Location': ex.dest
@@ -158,6 +172,7 @@ const serveDocument = async (route, req, resp) => {
 			return;
 		}
 		if (ex instanceof Forbidden) {
+			log.debug('serveDocument -> 401');
 			await serveDocument('/--forbidden--', req, resp);
 			return;
 		}
@@ -203,13 +218,13 @@ const setupApp = () => {
 			await serveDocument(req.path, req, resp);
 		}
 		catch (ex) {
-			console.error(ex.stack);
+			log.critical(ex.stack);
 			try {
 				await serveDocument('/--server-error--', req, resp);
 			}
 			catch (anotherEx) {
-				console.error('Double wammy!');
-				console.error(anotherEx.stack);
+				log.critical('Double wammy!');
+				log.critical(anotherEx.stack);
 				resp.status(500).set({
 					'Content-Type': 'text/plain'
 				}).send('An error occurred');
@@ -231,7 +246,7 @@ if (config.development.debug && module.hot) {
 	module.hot.accept(['./app', './router'], () => {
 		server.close();
 		app = setupApp();
-		server = app.listen(port, () => console.log('Server restarted'));
+		server = app.listen(port, () => log.info('Server restarted'));
 	});
 }
-server = app.listen(port, () => console.log('Server started'));
+server = app.listen(port, () => log.info('Server started'));
