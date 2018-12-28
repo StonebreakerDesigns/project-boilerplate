@@ -1,0 +1,8 @@
+{
+	"development": {
+		"debug": true
+	},
+	"env": {
+		"apiURL": "/api"
+	}
+}

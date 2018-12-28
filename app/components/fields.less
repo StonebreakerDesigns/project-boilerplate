@@ -18,11 +18,14 @@
 		width: 100%;
 		font-family: @text-font;
 		border: 2px solid @light-grey;
+		font-size: 12pt;
+		padding: @space/2 @space;
 	}
 	label + input {
 		width: calc(100% - @label-width);
 	}
 	.error-text {
+		padding-left: @label-width;
 		padding-top: @space/3;
 	}
 

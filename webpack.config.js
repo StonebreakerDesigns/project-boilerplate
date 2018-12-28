@@ -34,11 +34,11 @@ const shared = (name, ...entries) => ({
 				use: 'preact-svg-loader',
 			},
 			{
-				test: /\.yaml$/,
-				use: [
-					{loader: 'json-loader'},
-					{loader: 'yaml-loader'}
-				]
+				test: /\.(?:eot|woff|woff2|ttf)$/,
+				use: {
+					loader: 'file-loader',
+					options: {publicPath: '/assets'}
+				}
 			}
 		]
 	}

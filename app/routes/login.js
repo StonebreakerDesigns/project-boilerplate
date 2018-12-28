@@ -3,6 +3,7 @@ import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
 import styled from '../bind-style';
+import contextual from '../bind-context';
 import history from '../history';
 import { noUser } from '../authorities';
 import { post } from '../requests';
@@ -14,6 +15,7 @@ import style from './login.less';
 
 /** The login page. */
 @styled(style)
+@contextual
 class LoginPage extends Component {
 	constructor(props) {
 		super(props);

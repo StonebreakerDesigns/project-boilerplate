@@ -12,7 +12,7 @@ import { StyleContext } from './bind-style';
 import App from './app';
 
 //	Grab root.
-const root = document.getElementByTagName('body')[0];
+const root = document.getElementById('document-root');
 //	Create an app holder.
 let app;
 

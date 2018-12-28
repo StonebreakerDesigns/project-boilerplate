@@ -28,7 +28,7 @@ class LandingPage extends Component {
 			</div>
 			<p>Get creating!</p>
 			<Link 
-				label="Go Somewhere" icon="heart"
+				label="Go somewhere" icon="heart"
 				href="/somewhere" class="button"
 			/>
 			<Button 

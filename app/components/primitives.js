@@ -6,8 +6,8 @@ import history from '../history';
 
 /** An icon. */
 class Icon extends Component {
-	render({ name }) { return <i class={ 
-		'fa fa-' + name + ' ' + (this.props.class || '')
+	render({ name, ...props }) { return <i class={ 
+		'far fa-' + name + ' ' + (props.class || '') + ' icon'
 	}/>; }
 }
 
@@ -15,7 +15,7 @@ class Icon extends Component {
 class Spinner extends Component {
 	render({ center }) { return (
 		<i class={ 
-			'fa fa-spinner fa-spin load-spinner' +
+			'far fa-spinner fa-spin load-spinner' +
 			(center ? ' centered' : '')
 		}/>
 	); }
@@ -24,7 +24,7 @@ class Spinner extends Component {
 /** A button. */
 class Button extends Component {
 	render({ icon, label, ...props }) { return (
-		<button {...props}>
+		<button {...props} class={ 'button ' + (props.class || '') }>
 			{ icon && <Icon name={ icon }/> }
 			{ label }
 		</button>

@@ -3,11 +3,11 @@
 import path from 'path';
 import express from 'express';
 import proxy from 'express-http-proxy';
-import request from 'requests';
+import request from 'request';
 import { h } from 'preact';
 import { render } from 'preact-render-to-string';
 
-import config from '../config/server.config.yaml';
+import config from '../config/server.config.json';
 import { NotFound, SeeOther, Forbidden } from './errors';
 import router from './router';
 import { StyleContext } from './bind-style';
@@ -68,17 +68,19 @@ class HTMLDocument {
 				<link rel="icon" type="image/png" href="/static/site-icon.png"/>
 				<meta name="viewport" content="width=device-width, initial-scale=1"/>
 				<meta name="description" content={ description }/>
-				{...metadataTags}
+				{ metadataTags }
 				<script id="-data-preload" dangerouslySetInnerHTML={{_html: 
 					'window.data = ' + JSON.stringify(data) + ';'
 				}}/>
 			</head>
 			<body>
-				<StyleContext.Provider value={ addStyle }>
-					<App {...rootProps}>
-						<PageComponent {...rootProps}/>
-					</App>
-				</StyleContext.Provider>
+				<div id="document-root">
+					<StyleContext.Provider value={ addStyle }>
+						<App {...rootProps}>
+							<PageComponent {...rootProps}/>
+						</App>
+					</StyleContext.Provider>
+				</div>
 				<script id="-app-load" src="/assets/client.js" defer/>
 			</body>
 		</html>);
@@ -164,6 +166,7 @@ const serveDocument = async (route, req, resp) => {
 	}
 	//	Apply defaults.
 	status = status || 200;
+	metadata = metadata || {};
 
 	//	Create the document.
 	const html = (new HTMLDocument({
@@ -171,7 +174,7 @@ const serveDocument = async (route, req, resp) => {
 	})).render();
 	
 	//	Respond.
-	resp.status(route.status).set({
+	resp.status(status).set({
 		'Content-Type': 'text/html; charset=utf-8'
 	}).send('<!DOCTYPE html>' + html);
 };
@@ -190,7 +193,9 @@ const setupApp = () => {
 			proxyReqPathResolver: req => '/assets' + req.url
 		}));
 		//	Proxy to API.
-		app.use('/api', proxy(config.development.apiAccess));
+		app.use('/api', proxy(config.env.apiAccess, {
+			proxyReqPathResolver: req => '/api' + req.url
+		}));
 	}
 
 	app.get('*', async (req, resp) => {
@@ -212,6 +217,7 @@ const setupApp = () => {
 		}
 	});
 
+	return app;
 };
 
 //	Process command line arguments.

@@ -431,7 +431,7 @@ class LocalSessionCheckEndpoint:
 		cookie_val = req.get_secure_cookie(config.security.auth_cookie_key)
 		log.debug('Session check %s', cookie_val)
 		if not cookie_val:
-			resp.json = {'type': None}
+			resp.json = None
 			return
 
 		try:
@@ -446,7 +446,7 @@ class LocalSessionCheckEndpoint:
 				UserSession.where_current()
 			)).first()
 		if not row:
-			resp.json = {'type': None}
+			resp.json = None
 			return
 
 		#	Describe.

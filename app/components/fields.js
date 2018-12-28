@@ -24,10 +24,11 @@ class FieldStore {
 	}
 
 	/** The only exposed property for collecting fields. */
-	collect_({ exclude }) {
-		let toCollect = this._fieldSet.filter(
-			k => (!exclude) || (exclude.indexOf(k) >= 0)
-		);
+	collect_(opts) {
+		let exclude = opts && opts.exclude, 
+			toCollect = this._fieldSet.filter(
+				k => (!exclude) || (exclude.indexOf(k) >= 0)
+			);
 
 		let result = {}, failed = false;
 		toCollect.forEach(key => {
@@ -160,7 +161,7 @@ const required = (value, strict=false) => strict && !value && 'Required';
 
 /** Create regex validator. */
 const regexValidator = (regex, error='Invalid format') => (
-	value => !regex.test(value) && error
+	value => value && !regex.test(value) && error
 );
 
 /** An email address validator. */

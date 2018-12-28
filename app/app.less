@@ -2,6 +2,7 @@
 @import './config.less';
 @import './font-imports.less';
 @import '../node_modules/@fortawesome/fontawesome-pro/less/fontawesome.less';
+@import '../node_modules/@fortawesome/fontawesome-pro/less/regular.less';
 
 * {
 	box-sizing: border-box;
@@ -16,18 +17,23 @@ html {
 	color: @near-black;
 	font-family: @text-font;
 }
-
 h1, h2, h3, h4 { font-family: @title-font; }
 
 .button {
 	position: relative;
 	border: none; outline: none;
+	text-decoration: none;
 	background-color: @theme;
 	color: @near-white;
 	padding: @space/2 @space;
 	border-radius: @corners;
+	font-family: @title-font;
+	font-size: 12pt;
 	cursor: pointer;
 	margin: 0px @space/3;
 	
-	.icon { color: @near-white; }
+	.icon { 
+		color: @near-white;
+		margin-right: @space/2;
+	}
 }

@@ -3,10 +3,9 @@
 	"scripts": {
 		"build-client": "webpack --config-name client",
 		"build-server": "webpack --config-name server",
-		"start": "node etc/setup-dev-env.js && concurrently --restart-tries 1 --restart-after 30000 \"webpack --config-name server --watch\" \"webpack-dev-server --config-name client\" \"node dist/server.js\""
+		"start": "node etc/setup-dev-env.js && concurrently --restart-tries 2 --restart-after 20000 \"webpack --config-name server --watch\" \"webpack-dev-server --config-name client\" \"node dist/server.js\" \"python api\""
 	},
 	"dependencies": {
-		"@fortawesome/fontawesome-free": "^5.3.1",
 		"@fortawesome/fontawesome-pro": "^5.6.3",
 		"autobind-decorator": "^2.1.0",
 		"babel-core": "^6.26.3",
@@ -25,7 +24,6 @@
 		"history": "^4.7.2",
 		"immer": "^1.6.0",
 		"isomorphic-style-loader": "^4.0.0",
-		"json-loader": "^0.5.7",
 		"less": "^3.8.1",
 		"less-loader": "^4.1.0",
 		"ncp": "^2.0.0",
@@ -39,8 +37,7 @@
 		"webpack": "^4.16.5",
 		"webpack-cli": "^3.1.0",
 		"webpack-merge": "^4.1.4",
-		"webpack-stream": "^5.1.1",
-		"yaml-loader": "^0.5.0"
+		"webpack-stream": "^5.1.1"
 	},
 	"devDependencies": {
 		"babel-eslint": "^10.0.1",
