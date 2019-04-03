@@ -14,6 +14,10 @@ class Logger {
 	constructor(name) {
 		this.name = name;
 		this.serverSide = typeof window === 'undefined';
+
+		['debug', 'info', 'warn', 'critical'].forEach(key => {
+			this._addCurried(key);
+		});
 	}
 
 	/** Internal write utility. */
@@ -28,6 +32,11 @@ class Logger {
 			args = ['%c' + level, 'color: ' + color + ';', ...args];
 		}
 		this._write(args);
+	}
+
+	/** Currying utility. */
+	_addCurried(key) {
+		this[key].curry = (...args) => this[key](...args);
 	}
 
 	/** Debug level. */

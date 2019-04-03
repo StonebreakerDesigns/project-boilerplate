@@ -1,0 +1,21 @@
+/** Margin and padding rule generators. */
+
+.edge-rules(@name, @rule, @val) {
+    .generate-case(@name-suffix, @rule-suffix) {
+        .@{name}-@{name-suffix} { 
+            e('@{rule}-@{rule-suffix}: @{val} !important;');
+        }
+    };
+
+    //  Root.
+    .@{name} { e('@{rule}: @{val};'); }
+    //  Cases.
+    .generate-case(h, right);
+    .generate-case(hr, right);
+    .generate-case(h, left);
+    .generate-case(hl, left);
+    .generate-case(v, top);
+    .generate-case(vt, top);
+    .generate-case(v, bottom);
+    .generate-case(vb, bottom);
+};

@@ -1,0 +1,9 @@
+/** Font-related mixins. */
+
+.import-font(@name, @path, @weight: normal) {
+	@font-face {
+		font-family: @name;
+		src: e('url(@{path})');
+		font-weight: @weight;
+	}
+}

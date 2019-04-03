@@ -1,39 +1,126 @@
-/* Universal app styles. */
+/* 
+*	The base stylesheet. Canonically, this app uses the bootstrap approach,
+*	falling back to custom stylesheets in unique situations.
+*/
 @import './config.less';
-@import './font-imports.less';
+@import './mixins/utils.less';
+@import './mixins/grids.less';
+@import './mixins/edges.less';
+@import './mixins/fonts.less';
 @import '../node_modules/@fortawesome/fontawesome-pro/less/fontawesome.less';
-@import '../node_modules/@fortawesome/fontawesome-pro/less/regular.less';
 
-* {
-	box-sizing: border-box;
-	transition: @time all;
-	margin: 0px;
-	padding: 0px;
+//	Fix font-awesome.
+@font-face {
+	font-family: 'Font Awesome 5 Brands - Fixed';
+	font-style: normal;
+	font-weight: normal;
+	src: url('/static/fonts/fa/fa-brands-400.eot');
+	src: url('/static/fonts/fa/fa-brands-400.eot?#iefix') format('embedded-opentype'),
+	  url('/static/fonts/fa/fa-brands-400.woff2') format('woff2'),
+	  url('/static/fonts/fa/fa-brands-400.woff') format('woff'),
+	  url('/static/fonts/fa/fa-brands-400.ttf') format('truetype'),
+	  url('/static/fonts/fa/fa-brands-400.svg#fontawesome') format('svg');
 }
+.fab {
+	font-family: 'Font Awesome 5 Brands - Fixed';
+}
+@font-face {
+	font-family: 'Font Awesome 5 - Fixed';
+	font-style: normal;
+	font-weight: normal;
+	src: url('/static/fonts/fa/fa-@{font-awesome-style}.eot');
+	src: url('/static/fonts/fa/fa-@{font-awesome-style}.eot?#iefix') format('embedded-opentype'),
+	  url('/static/fonts/fa/fa-@{font-awesome-style}.woff2') format('woff2'),
+	  url('/static/fonts/fa/fa-@{font-awesome-style}.woff') format('woff'),
+	  url('/static/fonts/fa/fa-@{font-awesome-style}.ttf') format('truetype'),
+	  url('/static/fonts/fa/fa-@{font-awesome-style}.svg#fontawesome') format('svg');
+}
+.@{font-awesome-sheet} {
+	font-family: 'Font Awesome 5 - Fixed' !important;
+}
+
+//	Fix CSS.
+* { box-sizing: border-box; }
+
+//	Clear UA.
 html {
 	position: relative;
 	min-height: 100vh;
-	background-color: @near-white;
-	color: @near-black;
 	font-family: @text-font;
 }
-h1, h2, h3, h4 { font-family: @title-font; }
+html, body {
+	padding: 0px;
+	margin: 0px;
+}
+h1, h2, h3, h4 { 
+	padding: 0px;
+	margin: 0px;
+	font-family: @title-font; 
+}
+h1 { margin-bottom: @space; }
+h2 { margin-bottom: @space/2; }
+h3, h4 { margin-bottom: @space/3; }
+p {
+	padding: 0px;
+	margin: 0px;
+}
 
+//	Primitives.
 .button {
 	position: relative;
 	border: none; outline: none;
 	text-decoration: none;
-	background-color: @theme;
-	color: @near-white;
-	padding: @space/2 @space;
-	border-radius: @corners;
-	font-family: @title-font;
-	font-size: 12pt;
 	cursor: pointer;
-	margin: 0px @space/3;
+	
+	&:not(.simple) {
+		background-color: @primary;
+		color: @near-white;
+		padding: @space/2 @space;
+		border-radius: @corners;
+		font-size: @text-size;
+	}
 	
 	.icon { 
 		color: @near-white;
 		margin-right: @space/2;
 	}
+	&.i-left {
+		.icon { 
+			margin-right: 0px;
+			margin-left: @space/2; 
+		}
+	}
 }
+
+//	Grid layout.
+.define-grid-components(@space, @space);
+.define-grid-components(@space/2, @space, -hmar);
+.define-grid-components(0px, @space, -nmar);
+
+//	Sizings.
+.intervals(100, 1500, 100, px, max-width, mx-w, px);
+.intervals(100, 1500, 100, px, min-width, mn-w, px);
+.intervals(5, 100, 5, '%', width, w, pct);
+
+//	Margin & padding.
+.edge-rules(mar, margin, @space);
+.edge-rules(hmar, margin, @space/2);
+.edge-rules(nmar, margin, 0px);
+.edge-rules(pad, padding, @space);
+.edge-rules(hpad, padding, @space/2);
+.edge-rules(npad, padding, 0px);
+
+//	Alignment & display.
+.al-c { text-align: center; }
+.al-l { text-align: left; }
+.al-r { text-align: right; }
+
+.hide { display: none; }
+.ilb { display: inline-block; }
+.vab { vertical-align: bottom; }
+.vat { vertical-align: top; }
+
+.mar-a { margin: 0px auto; }
+
+.ts { padding-top: @top-safety; }
+.bs { padding-bottom: @bottom-safety; }

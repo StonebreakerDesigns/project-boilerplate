@@ -1,18 +1,22 @@
 /** The 403 page. */
 import { Component, h } from 'preact';
 
-import { ErrorDisplay } from '../../components/error-display';
+import { PageErrorLayout } from '../../components/layouts';
+
+const ERROR_DESC = "You're not allowed to see this page.";
 
 /** The page. */
 class ForbiddenPage extends Component {
 	render() { return (
-		<ErrorDisplay title="Forbidden">
-			You're not allowed to see this page.
-		</ErrorDisplay>
+		<PageErrorLayout title="Forbidden">
+			{ ERROR_DESC }
+		</PageErrorLayout>
 	); }
 }
 
 //	Export.
 export default {
-	status: 403, title: 'Forbidden', component: ForbiddenPage
+	status: 403,
+	metadata: {title: 'Forbidden', description: ERROR_DESC},
+	component: ForbiddenPage
 };

@@ -2,29 +2,31 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
+import config from '../config'
 import history from '../history';
 
 /** An icon. */
 class Icon extends Component {
-	render({ name, ...props }) { return <i class={ 
-		'far fa-' + name + ' ' + (props.class || '') + ' icon'
-	}/>; }
+	render({ name, ...props }) { return (
+		<i class={ [
+			config.iconSheet, 'fa-' + name, props.class, 'icon'
+		] }/>
+	); }
 }
 
 /** A "loading" spinner. */
 class Spinner extends Component {
-	render({ center }) { return (
-		<i class={ 
-			'far fa-spinner fa-spin load-spinner' +
-			(center ? ' centered' : '')
-		}/>
+	render(props) { return (
+		<i class={ [
+			config.iconSheet, 'fa-spinner fa-spin', props.class
+		] }/>
 	); }
 }
 
 /** A button. */
 class Button extends Component {
 	render({ icon, label, ...props }) { return (
-		<button {...props} class={ 'button ' + (props.class || '') }>
+		<button {...props} class={ ['button ', props.class] }>
 			{ icon && <Icon name={ icon }/> }
 			{ label }
 		</button>
@@ -36,9 +38,10 @@ class Link extends Component {
 	/** Follow this link. */
 	@bound
 	follow(event=null) {
+		if (event) event.preventDefault();
+
 		let { href } = this.props;
 		history.push(href);
-		if (event) event.preventDefault();
 	}
 
 	render({ href, icon, label, ...props }) { return (

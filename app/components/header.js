@@ -2,10 +2,10 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
-import styled from '../bind-style';
-import contextual from '../bind-context';
+import styled from '../style-context';
+import contextual from '../app-context';
 import history from '../history';
-import { Button, Link } from './primitives';
+import { Button, Link, Icon } from './primitives';
 import style from './header.less';
 
 /** Usership header. */
@@ -21,7 +21,7 @@ class HeaderUserPanel extends Component {
 	}
 
 	render({ context: { user } }) { return (
-		<div id="user-panel">{ user ?
+		<div id="user-panel" class="ilb w-50pct al-r pad">{ user ?
 			<span>
 				{ user.email_address }
 				<Button label="Log out" onClick={ this.handleLogout }/>
@@ -39,24 +39,12 @@ class HeaderUserPanel extends Component {
 /** The site header. */
 @styled(style)
 class Header extends Component {
-	constructor(props) {
-		super(props);
-
-		this.state = { visible: true };
-	}
-
-	componentWillMount() {
-		this.props.binding(this);
-	}
-
-	/** Toggle the visibility of the header. */
-	setVisible(visible) {
-		this.setState({ visible });
-	}
-
-	render({}, { visible }) { return (
-		<div id="header" class={ visible ? '' : ' collapsed'}>
-			<div class="brand">A clean slate...</div>
+	render() { return (
+		<div id="header">
+			<div class="ilb w-50pct pad">
+				<Icon name="plus-square" class="hmar-hr"/>
+				New project
+			</div>
 			<HeaderUserPanel/>
 		</div>
 	); }

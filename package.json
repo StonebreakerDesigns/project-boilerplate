@@ -1,9 +1,10 @@
 {
 	"description": "A Stonebreaker Designs project",
 	"scripts": {
-		"build-client": "webpack --config-name client",
-		"build-server": "webpack --config-name server",
-		"start": "node etc/setup-dev-env.js && concurrently --restart-tries 2 --restart-after 20000 \"webpack --config-name server --watch\" \"webpack-dev-server --config-name client\" \"node dist/server.js\" \"python api\""
+		"build": "webpack --mode production",
+		"start-dev-app": "cross-env DEV_LAUNCH=1 webpack --config-name server --mode development --watch",
+		"start-dev-asset-server": "webpack-dev-server --config-name client --mode development",
+		"start": "node etc/setup-env.js && concurrently \"npm run start-dev-app\" \"npm run start-dev-asset-server\" \"python api\""
 	},
 	"dependencies": {
 		"@fortawesome/fontawesome-pro": "^5.6.3",
@@ -16,7 +17,9 @@
 		"babel-plugin-transform-react-jsx": "^6.24.1",
 		"babel-polyfill": "^6.26.0",
 		"babel-preset-env": "^1.7.0",
-		"concurrently": "^4.0.1",
+		"classname": "0.0.0",
+		"concurrently": "^4.1.0",
+		"cross-env": "^5.2.0",
 		"css-loader": "^1.0.0",
 		"express": "^4.16.3",
 		"express-http-proxy": "^1.4.0",
@@ -32,7 +35,7 @@
 		"preact-render-to-string": "^3.8.2",
 		"preact-svg-loader": "^0.2.1",
 		"request": "^2.88.0",
-		"rimraf": "^2.6.2",
+		"rimraf": "^2.6.3",
 		"style-loader": "^0.22.1",
 		"webpack": "^4.16.5",
 		"webpack-cli": "^3.1.0",

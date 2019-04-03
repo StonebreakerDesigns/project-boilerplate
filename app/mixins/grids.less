@@ -1,0 +1,74 @@
+/** Grid layout related mixins. */
+
+.define-grid-components(@mar, @pad, @prefix: ~"") {
+	@total-mar: @mar*2;
+
+	//	Base grid system.
+	.grid-step(@k) {
+		@alotment: 100%/(12/@k);
+
+		.col-@{k}@{prefix} {
+			display: inline-block;
+			vertical-align: top;
+			margin: @mar;
+			padding: @pad;
+			width: calc(@alotment - @total-mar);
+		}
+	}
+	.grid-step(1);
+	.grid-step(2);
+	.grid-step(3);
+	.grid-step(4);
+	.grid-step(5);
+	.grid-step(6);
+	.grid-step(7);
+	.grid-step(8);
+	.grid-step(9);
+	.grid-step(10);
+	.grid-step(11);
+	.grid-step(12);
+
+	//	Responsiveness.
+	@media screen and (max-width: @breakpoint-1) {
+		//	Base styles.
+		.col-11@{prefix}, .col-10@{prefix}, .col-9@{prefix},
+		//	Responsive behaviours.
+		.col-11@{prefix}-rb, .col-10@{prefix}-rb, .col-9@{prefix}-rb {
+			width: calc(100% - @total-mar);
+		}
+		
+		.col-8@{prefix}, .col-7@{prefix}, .col-6@{prefix},
+		.col-8@{prefix}-rb, .col-7@{prefix}-rb, .col-6@{prefix}-rb { 
+			width: calc(66.66666666% - @total-mar); 
+		}
+
+		.col-5@{prefix}, .col-4@{prefix},
+		.col-5@{prefix}-rb, .col-4@{prefix}-rb { 
+			width: calc(50% - @total-mar);
+		}
+
+		.col-3@{prefix}, .col-2@{prefix}, .col-1@{prefix},
+		.col-3@{prefix}-rb, .col-2@{prefix}-rb, .col-1@{prefix}-rb {
+			width: calc(33.333333% - @total-mar);
+		}
+	}
+
+	@media screen and (max-width: @breakpoint-2) {
+		.col-8@{prefix}, .col-7@{prefix}, .col-6@{prefix},
+		.col-8@{prefix}-rb, .col-7@{prefix}-rb, .col-6@{prefix}-rb { 
+			width: calc(100% - @total-mar); 
+		}
+
+		.col-5@{prefix}, .col-4@{prefix}, .col-3@{prefix}, .col-2@{prefix}, .col-1@{prefix},
+		.col-5@{prefix}-rb, .col-4@{prefix}-rb, .col-3@{prefix}-rb, .col-2@{prefix}-rb, .col-1@{prefix}-rb {
+			width: calc(50% - @total-mar);
+		}
+	}
+
+	@media screen and (max-width: @breakpoint-3) {
+		.col-5@{prefix}, .col-4@{prefix}, .col-3@{prefix}, .col-2@{prefix}, .col-1@{prefix},
+		.col-5@{prefix}-rb, .col-4@{prefix}-rb, .col-3@{prefix}-rb, .col-2@{prefix}-rb, .col-1@{prefix}-rb {
+			width: calc(100% - @total-mar);
+		}
+	}
+}

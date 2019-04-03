@@ -1,13 +1,63 @@
 /** Webpack configuration. */
 const path = require('path');
+const process = require('process');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
+const { spawn } = require('child_process');
 
-/** Generate the shared configuration segement. */
-const shared = (name, ...entries) => ({
+//	Constants.
+const FS_POLL = 'webpack/hot/poll?1000';
+//	Whether we are in development server mode.
+const WILL_LAUNCH = process.env.DEV_LAUNCH == '1';
+
+if (WILL_LAUNCH) {
+	console.log('---- App server will start after build ----');
+}
+
+/** The server launch plugin. */
+class DevEnvLaunchPlugin {
+	constructor() {
+		this.serverProc = null;
+	}
+
+	launch() {
+		if (!WILL_LAUNCH) return;
+
+		if (this.serverProc) {
+			//	Kill.
+			this.serverProc.stdin.pause();
+			this.serverProc.kill();
+		}
+
+		console.log('---- Spawning application server ----');
+
+		this.serverProc = spawn('node', ['./dist/server.js']);
+		this.serverProc.stdout.on('data', data => {
+			//	eslint-disable-next-line no-console
+			console.log(data.toString().trim());
+		});
+		this.serverProc.stderr.on('data', data => {
+			//	eslint-disable-next-line no-console
+			console.warn(data.toString().trim());
+		});
+		this.serverProc.on('exit', code => {
+			//	eslint-disable-next-line no-console
+			console.log('Server exited: ' + code);
+		});	
+	}
+	
+	apply(compiler) {
+		console.log('\t -> Applying tap');
+		compiler.hooks.done.tap('DevEnvLaunchPlugin', this.launch.bind(this));
+	}
+}
+
+/** Generate the base configuration segement. */
+const createBase = (name, getEntries) => ({
 	name,
-	entry: ['babel-polyfill', './app/' + name + '.js', ...entries],
-	mode: 'development',
+	entry: [
+		'babel-polyfill', './app/' + name + '/index.js', ...getEntries()
+	],
 	module: {
 		rules: [
 			{
@@ -45,7 +95,7 @@ const shared = (name, ...entries) => ({
 });
 
 //	Export client and server builds.
-module.exports = [merge(shared('client'), {
+module.exports = [merge(createBase('client', () => []), {
 	output: {
 		path: path.resolve(__dirname, './dist/client'),
 		filename: 'client.js',
@@ -55,8 +105,7 @@ module.exports = [merge(shared('client'), {
 		contentBase: 'dist',
 		port: 7991
 	}
-}), merge(shared('server', 'webpack/hot/poll?1000'), {
-	name: 'server',
+}), merge(createBase('server', () => WILL_LAUNCH ? [FS_POLL] : []), {
 	output: {
 		path: path.resolve(__dirname, './dist'),
 		filename: 'server.js'
@@ -64,7 +113,8 @@ module.exports = [merge(shared('client'), {
 	plugins: [
 		// https://github.com/brianc/node-postgres/issues/838
 		new webpack.IgnorePlugin(/^pg-native$/),
-		new webpack.HotModuleReplacementPlugin({quiet: true})
+		new webpack.HotModuleReplacementPlugin({quiet: true}),
+		new DevEnvLaunchPlugin()
 	],
 	target: 'node'
 })];

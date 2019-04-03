@@ -1,6 +1,6 @@
 /** Isomorphic-safe history provision. */
-import createHistory from 'history/createBrowserHistory';
+import { createBrowserHistory } from 'history';
 
 //	Export false if we're not in the browser.
 //	eslint-disable-next-line no-undef
-export default typeof window !== 'undefined' && createHistory();
+export default typeof window !== 'undefined' && createBrowserHistory();

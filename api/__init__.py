@@ -19,7 +19,7 @@ log = logger(__name__) #	pylint: disable=invalid-name
 #	Import endpoints.
 #	pylint: disable=wrong-import-position
 from .domain.users import AuthEndpoint, UserCollectionEndpoint, \
-	UserInstanceEndpoint, PasswordResetEndpoint, LocalSessionCheckEndpoint
+	UserInstanceEndpoint, PasswordTokenCollection
 #	pylint: enable=wrong-import-position
 
 #	Initialize system.
@@ -30,8 +30,7 @@ application = create_api({ # pylint: disable=invalid-name
 	'/users': UserCollectionEndpoint(),
 	'/users/{id:uuid}': UserInstanceEndpoint(),
 	'/auth': AuthEndpoint(),
-	'/auth/pass-reset': PasswordResetEndpoint(),
-	'/--auth-check': LocalSessionCheckEndpoint()
+	'/passwd-tokens': PasswordTokenCollection()
 })
 
 #	Define debug helper.

@@ -1,11 +1,10 @@
-/** The isomorphic application root components. */
+/** The isomorphic application root component. */
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
-import config from './config';
+import styled from './style-context';
 import { get, delete_ } from './requests';
-import styled from './bind-style';
-import { AppContext } from './bind-context'; 
+import { AppContext } from './app-context'; 
 import Header from './components/header';
 import style from './app.less';
 
@@ -15,23 +14,21 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = { user: null, authFetched: false };
+		this.state = {user: props.user};
 	}
 
 	componentDidMount() {
 		let { binding } = this.props;
-
 		if (binding) binding(this);
-		this.fetchAuth();	
 	}
 
 	/** Fetch the currently authenticated user. */
 	@bound
 	async fetchAuth() {
-		let authFetch = await get('/auth');
+		let { status, data } = await get('/auth');
 
-		let user = authFetch.status == 'success' ? authFetch.data : null;
-		this.setState({ authFetched: true, user });
+		let user = status == 'success' ? data : null;
+		this.setState({ user });
 		return user;
 	}
 
@@ -42,28 +39,22 @@ class App extends Component {
 		this.setState({user: null});
 	}
 
-	/** Show the header. Should be accessed through the app context. */
-	@bound
-	toggleHeader(flag) {
-		this.header.setVisible(flag);
+	/** The context object. */
+	get contextObject() {
+		let { fetchAuth, deleteAuth } = this,
+			{ route, query, nextReady } = this.props,
+			{ user } = this.state;
+		
+		return { route, query, user, fetchAuth, deleteAuth, nextReady };
 	}
 
-	render({ route, query, children }, { authFetched, user }) {
-		const { fetchAuth, deleteAuth, toggleHeader } = this,
-			context = {
-				route, query, user, authFetched, fetchAuth, deleteAuth, toggleHeader
-			};
-		//	Maybe provide debug access.
-		if (typeof window !== 'undefined' && config.debug) window.context = context;
-
-		return (
-			<AppContext.Provider value={ context }>
-				<Header binding={ c => this.header = c }/>
-				{ children }
-			</AppContext.Provider>
-		); 
-	}
+	render({ children }) { return (
+		<AppContext.Provider value={ this.contextObject }>
+			<Header/>
+			{ children }
+		</AppContext.Provider>
+	); }
 }
 
 //	Exports.
-export default App;
+export { App };

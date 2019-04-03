@@ -1,6 +1,14 @@
 /** Client-side request provision. */
 import config from './config';
 
+/** An error raised when JSON source doesn't validate for collection. */
+class SourceInvalidated {
+	constructor() {
+		//	A property for easy identification of this error class.
+		this.isFormInvalidation = true;
+	}
+}
+
 /**
 *	Asynchronously send an HTTP request.
 *	@param options Request configuration.
@@ -21,6 +29,12 @@ const request = async options => {
 		//	Route onto API.
 		if (!options.external) {
 			options.route = config.env.apiURL + options.route;
+		}
+
+		//	Maybe collect json.
+		if (options.jsonSource) {
+			options.json = options.jsonSource.fields.collect_();
+			if (!options.json) reject(new SourceInvalidated());
 		}
 
 		//	Compute the status code to expect.
@@ -92,4 +106,4 @@ let get = createVariant('GET'),
 
 //	Export.
 export default request;
-export { get, post, put, delete_, merge };
+export { get, post, put, delete_, merge, SourceInvalidated };

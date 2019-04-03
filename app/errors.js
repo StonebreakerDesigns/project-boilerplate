@@ -4,9 +4,7 @@
 class NotFound {}
 
 /** An exception to trigger redirection. */
-class SeeOther {
-	constructor(dest) { this.dest = dest; }
-}
+class SeeOther { constructor(dest) { this.dest = dest; } }
 
 /** An exception triggered by a user not being authenticated. */
 class Unauthorized {}

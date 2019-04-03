@@ -2,111 +2,119 @@
 import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
-import styled from '../bind-style';
-import contextual from '../bind-context';
+import config from '../config';
+import contextual from '../app-context';
 import history from '../history';
-import { noUser } from '../authorities';
+import { noUser } from '../auth';
 import { post } from '../requests';
 import { Button } from '../components/primitives';
 import { 
-	Field, FormError, required, passwordFormat, emailFormat, mergeValidators
+	Field, FieldContext, required, passwordFormat, emailFormat, mergeValidators
 } from '../components/fields';
-import style from './login.less';
 
 /** The login page. */
-@styled(style)
 @contextual
 class LoginPage extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = { error: null, reseting: false };
+		this.buildState(a => ({
+			error: a(null, 's'), 
+			reseting: a(false, 's')
+		}));
 	}
 
-	/** Handle password reset workflow start. */
-	@bound
-	handleResetStart() { this.setState({reseting: true}); }
-	/** Handle password reset workflow backout. */
-	@bound
-	cancelResetRequest() { this.setState({reseting: false}); }
-
-	/** Send a password reset request. */
-	@bound
-	async requestPasswordReset() {
-		let request = this.fields.collect_();
-		if (!request) return;
-
-		await post({
-			route: '/auth/request-password-reset',
-			json: request
-		});
-		this.setState({reseting: false});
-	}
-
-	@bound
-	async submit() {
-		let credentials = this.fields.collect_();
-		if (!credentials) return;
-
+	/** Submit a password reset request. */
+	async submitResetRequest() {
 		try {
 			await post({
-				route: '/auth',
-				json: credentials
+				route: '/passwd-tokens',
+				jsonSource: this
 			});
 		}
 		catch (err) {
+			if (err.isFormInvalidation) return;
+			throw err;
+		}
+
+		this.setReseting(false);
+	}
+
+	/** Submit login credentials. */
+	async submitCredentials() {
+		try {
+			await post({
+				route: '/auth',
+				jsonSource: this
+			});
+		}
+		catch (err) {
+			if (err.isFormInvalidation) return;
 			if (err.status != 401) throw err;
 
-			this.setState({error: err.json.message});
+			this.setError(err.json.message);
 			return;
 		}
 
-		await this.props.context.fetchAuth();
-		history.push(this.props.context.query.r || '/dashboard');
+		let {context: {fetchAuth, query: { r }}} = this.props;
+		await fetchAuth();
+		history.push(r || config.behaviour.postAuthDest);
+	}
+
+	@bound
+	submit() {
+		let { reseting } = this.state;
+
+		if (reseting) this.submitResetRequest();
+		else this.submitCredentials();
 	}
 
 	render({}, { error, reseting }) { return (
-		<div id="login-page">
+		<div id="login-page" class="al-c">
 			{ !reseting ?
-				<div class="login-area">
-					<h2>Log in</h2>
-					<FormError error={ error }/>
-					<Field
-						parent={ this } id="email_address"
-						label="Email address"
-						validator={ mergeValidators(required, emailFormat) }
-					/>
-					<Field
-						parent={ this } id="password"
-						type="password" label="Password"
-						validator={ mergeValidators(required, passwordFormat) }
-					/>
-					<div class="login-actions">
+				<div class="col-6 al-l">
+					<h2 class="pad-vb">Log in</h2>
+					<FieldContext parent={ this } error={ error }>
+						<Field
+							id="email_address"
+							label="Email address"
+							validator={ mergeValidators(required, emailFormat) }
+						/>
+						<Field
+							id="password"
+							type="password" label="Password"
+							validator={ mergeValidators(required, passwordFormat) }
+						/>
+					</FieldContext>
+					<div class="al-r">
 						<Button label="Sign in" onClick={ this.submit }/>
-					</div>
-					<div onClick={ this.handleResetStart }>
-						Forgot your password?
+						<br/>
+						<Button 
+							label="Forgot your password?" class="simple" 
+							onClick={ this.setReseting.curry(true) }
+						/>
 					</div>
 				</div>
 				:
-				<div class="reset-area">
-					<h3>Request password reset</h3>
-					<p>
+				<div class="col-6 al-l">
+					<h3 class="pad-vb">Request password reset</h3>
+					<p class="pad-vb">
 						Enter your email address and we'll send you a reset
 						link.
 					</p>
-					<Field
-						parent={ this } id="email"
-						label="Your email address"
-						validator={ this.emailValidator }
-					/>
-					<div class="reset-actions">
-						<Button 
-							label="Cancel" onClick={ this.cancelResetRequest }
+					<div>
+						<Field
+							parent={ this } id="email"
+							label="you@yours.com"
+							validator={ mergeValidators(required, emailFormat) }
 						/>
-						<Button
-							label="Send reset link"
-							onClick={ this.requestPasswordReset }
+					</div>
+					<div class="al-r">
+						<Button label="Send reset link" onClick={ this.submit }/>
+						<br/>
+						<Button 
+							label="Cancel" class="simple"
+							onClick={ this.setReseting.curry(false) }
 						/>
 					</div>
 				</div>
@@ -115,8 +123,12 @@ class LoginPage extends Component {
 	); }
 }
 
+//	Export.
 export default {
-	title: 'Log in',
-	authority: noUser,
+	metadata: {
+		title: 'Log in',
+		description: 'Log in to access your account.'
+	},
+	authCheck: noUser,
 	component: LoginPage
 };

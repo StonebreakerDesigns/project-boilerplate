@@ -362,7 +362,7 @@ class AuthEndpoint:
 		resp.unset_cookie(cookie_key)
 
 #	TODO: Wipe all active tokens on success.
-class PasswordResetEndpoint:
+class PasswordTokenCollection:
 	'''Password reset machinery. POST to create token, PUT to use.'''
 
 	@with_session
@@ -420,34 +420,3 @@ class PasswordResetEndpoint:
 			template='password-reset.html',
 			context={'reset_url': reset_url}
 		)
-
-class LocalSessionCheckEndpoint:
-	'''An endpoint exposed only to the app to check authentication sessions.'''
-
-	@with_session
-	def on_get(self, req, resp, sess):
-		'''Return the user type for the current user if there is one.'''
-		#	Check input.
-		cookie_val = req.get_secure_cookie(config.security.auth_cookie_key)
-		log.debug('Session check %s', cookie_val)
-		if not cookie_val:
-			resp.json = None
-			return
-
-		try:
-			auth_sess_id = uuid.UUID(cookie_val)
-		except ValueError:
-			raise BadRequest(message='No.')
-
-		#	Retrieve and assert any.
-		row = sess.query(User.id, User.type)\
-			.join(UserSession).filter(query_and(
-				UserSession.key == auth_sess_id,
-				UserSession.where_current()
-			)).first()
-		if not row:
-			resp.json = None
-			return
-
-		#	Describe.
-		resp.json = {'type': row[1]}

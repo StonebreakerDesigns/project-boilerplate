@@ -1,5 +1,5 @@
 /* eslint-disable */
-/** Create or destroy the webpack-dev-server environment. */
+/** Reset/create the development environment. */
 const fs = require('fs');
 const { ncp } = require('ncp');
 const rmrf = require('rimraf');
