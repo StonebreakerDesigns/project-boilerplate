@@ -1,9 +1,8 @@
 /**  Basic components. */
 import { Component, h } from 'preact';
-import bound from 'autobind-decorator';
 
 import config from '../config'
-import history from '../history';
+import { linkProps } from '../history';
 
 /** An icon. */
 class Icon extends Component {
@@ -35,17 +34,8 @@ class Button extends Component {
 
 /** A link. */
 class Link extends Component {
-	/** Follow this link. */
-	@bound
-	follow(event=null) {
-		if (event) event.preventDefault();
-
-		let { href } = this.props;
-		history.push(href);
-	}
-
 	render({ href, icon, label, ...props }) { return (
-		<a class={ props.class } href={ href } onClick={ this.follow }>
+		<a class={ props.class } {...linkProps(href)}>
 			{ icon && <Icon name={ icon }/> }
 			{ label }
 		</a>

@@ -1,11 +1,12 @@
 @import '../config.less';
 
 @label-width: 150px;
+@b-space-mod: 0.25rem;
 
 .field {
 	text-align: left;
 	padding: @space/2 0px;
-	margin-bottom: @space;
+	margin-bottom: @space + @b-space-mod;
 
 	label {
 		display: inline-block;
@@ -17,9 +18,10 @@
 		vertical-align: top;
 		width: 100%;
 		font-family: @text-font;
-		border: 2px solid @light-grey;
+		border: 1px solid @light-grey;
+		border-radius: @corners;
 		font-size: 12pt;
-		padding: @space/2 @space;
+		padding: @space/2;
 	}
 	label + input {
 		width: calc(100% - @label-width);

@@ -88,7 +88,8 @@ class LoginPage extends Component {
 					</FieldContext>
 					<div class="al-r">
 						<Button label="Sign in" onClick={ this.submit }/>
-						<br/>
+					</div>
+					<div class="al-r pad-vt">
 						<Button 
 							label="Forgot your password?" class="simple" 
 							onClick={ this.setReseting.curry(true) }
@@ -111,7 +112,8 @@ class LoginPage extends Component {
 					</div>
 					<div class="al-r">
 						<Button label="Send reset link" onClick={ this.submit }/>
-						<br/>
+					</div>
+					<div class="al-r pad-vt">
 						<Button 
 							label="Cancel" class="simple"
 							onClick={ this.setReseting.curry(false) }

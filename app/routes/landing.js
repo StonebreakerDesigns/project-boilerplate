@@ -3,6 +3,7 @@ import { Component, h } from 'preact';
 
 import contextual from '../app-context';
 import Brand from '../svg/brand.svg';
+import { linkProps } from '../history';
 
 /** The landing component. */
 @contextual
@@ -14,8 +15,10 @@ class LandingPage extends Component {
 	render() { return (
 		<div id="landing" class="al-c">
 			<div class="mx-w-300px mar-a ts bs">
-				<Brand/>
-				</div>
+				<a {...linkProps('https://stonebreakerdesigns.com')}>
+					<Brand/>
+				</a>
+			</div>
 			<div class="pad-vt">
 				You're up and running... get creating!
 			</div>

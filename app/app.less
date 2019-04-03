@@ -69,6 +69,7 @@ p {
 .button {
 	position: relative;
 	border: none; outline: none;
+	background-color: inherit;
 	text-decoration: none;
 	cursor: pointer;
 	
@@ -124,3 +125,12 @@ p {
 
 .ts { padding-top: @top-safety; }
 .bs { padding-bottom: @bottom-safety; }
+
+//	Font modifiers.
+.sm-t { font-size: @small-text-size; }
+.std-t { font-size: @text-size; }
+
+.l-tc { color: @white; }
+.nl-tc { color: @near-white; }
+.d-tc { color: @black; }
+.nd-tc { color: @near-black; }

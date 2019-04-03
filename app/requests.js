@@ -34,7 +34,10 @@ const request = async options => {
 		//	Maybe collect json.
 		if (options.jsonSource) {
 			options.json = options.jsonSource.fields.collect_();
-			if (!options.json) reject(new SourceInvalidated());
+			if (!options.json) {
+				reject(new SourceInvalidated());
+				return;
+			}
 		}
 
 		//	Compute the status code to expect.
