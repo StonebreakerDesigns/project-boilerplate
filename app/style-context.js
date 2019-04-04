@@ -36,7 +36,6 @@ const styled = style => {
 				//	Register the style on the server.
 				let { _addStyle } = this.props;
 				if (_addStyle) _addStyle(style);
-				else log.warn('no binding mechanism!');
 			}
 
 			componentDidMount() {

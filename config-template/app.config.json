@@ -3,7 +3,11 @@
 		"development": {
 			"debug": true
 		},
-		"iconSheet": "far"
+		"iconSheet": "far",
+		"googleAnalytics": {
+			"tagManagerAPIKey": null,
+			"uaAPIKey": null
+		}
 	},
 	"server": {
 		"devEnv": {
@@ -11,7 +15,7 @@
 		},
 		"env": {
 			"apiAccess": "http://localhost:7990",
-			"authCheckRoute": "/api/auth"
+			"userAccessRoute": "/api/auth?wvid=1"
 		},
 		"document": {
 			"favIcon": {"type": "image/png", "href": "/static/site-icon.png"},

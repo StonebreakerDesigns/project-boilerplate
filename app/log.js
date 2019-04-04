@@ -79,7 +79,7 @@ const logger = name => {
 		return new ConsoleLogger(name);
 	}
 	else {
-		if (config.debug) return new ConsoleLogger(name);
+		if (config.development.debug) return new ConsoleLogger(name);
 		else return new ProdClientLogger(name);
 	}
 };

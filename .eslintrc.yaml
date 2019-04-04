@@ -10,48 +10,48 @@ plugins:
 parser: babel-eslint
 parserOptions:
   ecmaFeatures:
-    jsx: true
+	jsx: true
   ecmaVersion: 2016
   sourceType: module
 rules:
   indent:
-    - error
-    - tab
+	- error
+	- tab
   linebreak-style:
-    - error
-    - windows
+	- error
+	- windows
   quotes:
-    - error
-    - single
+	- error
+	- single
   semi:
-    - error
-    - always
+	- error
+	- always
   max-len:
-    - error
-    - code: 100
-      comments: 100
+	- error
+	- code: 100
+	  comments: 100
   no-unused-vars:
-    - error
-    # Allow preact pragma.
-    - varsIgnorePattern: h
+	- error
+	# Allow preact pragma.
+	- varsIgnorePattern: h
   # Configure documentation requirements.
   require-jsdoc-except/require-jsdoc:
-    - error
-    - require:
-        FunctionDeclaration: true
-        MethodDefinition: true
-        ClassDeclaration: true
-        ArrowFunctionExpression: true
-        FunctionExpression: true
-      ignore:
-        - constructor
-        - render
-        - componentWillMount
-        - componentDidMount
-        - componentWillUnmount
-        - componentDidUnmount
-        - validate
-        - submit
+	- error
+	- require:
+		FunctionDeclaration: true
+		MethodDefinition: true
+		ClassDeclaration: true
+		ArrowFunctionExpression: true
+		FunctionExpression: true
+	  ignore:
+		- constructor
+		- render
+		- componentWillMount
+		- componentDidMount
+		- componentWillUnmount
+		- componentDidUnmount
+		- validate
+		- submit
   no-empty-pattern: 0
   # Disable un-applicatible React linting.
   react/react-in-jsx-scope: 0

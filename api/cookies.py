@@ -48,4 +48,4 @@ class SecureCookieMiddleware:
 	def process_request(self, req, resp):
 		'''Attach the write-protected cookie methods.'''
 		req.get_secure_cookie = _create_get_secure_cookie(req)
-		req.set_secure_cookie = _create_set_secure_cookie(resp)
+		resp.set_secure_cookie = _create_set_secure_cookie(resp)

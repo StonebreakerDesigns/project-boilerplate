@@ -23,13 +23,13 @@ options.vnode = vn => applyOptionToVNode(vn, existingOpt);
 
 /** This internal representation of a state key annotation. */
 class _ISAnnotation {
-    constructor(value, opts) {
-        this.value = value;
-        this.opts = opts;
-    }
+	constructor(value, opts) {
+		this.value = value;
+		this.opts = opts;
+	}
 
-    get getter() { return this.opts.indexOf('g') >= 0; }
-    get setter() { return this.opts.indexOf('s') >= 0; }
+	get getter() { return this.opts.indexOf('g') >= 0; }
+	get setter() { return this.opts.indexOf('s') >= 0; }
 }
 
 /**  
@@ -48,34 +48,34 @@ Component.prototype.buildState = function(templateGen) {
 		state = {}, me = this;
 	
 	//	Iterate template.
-    for (let key in template) {
+	for (let key in template) {
 		let defn = template[key],
 			capitalCase = key[0].toUpperCase() + key.substring(1);
 
-        if (!(defn instanceof _ISAnnotation)) {
+		if (!(defn instanceof _ISAnnotation)) {
 			//	Direct value.
 			state[key] = defn;
-            continue;
-        }
+			continue;
+		}
 
 		//	Definition.
-        state[key] = defn.value;
-        if (defn.setter) {
+		state[key] = defn.value;
+		if (defn.setter) {
 			//	Add a setter.
-            let methKey = 'set' + capitalCase;
+			let methKey = 'set' + capitalCase;
 
-            me[methKey] = function(v) { me.setState({[key]: v}); };
+			me[methKey] = function(v) { me.setState({[key]: v}); };
 			me[methKey].curry = function(...args) {
 				return function() { me[methKey](...args); }
 			};
-        }
-        if (defn.getter) {
+		}
+		if (defn.getter) {
 			//	Add a getter.
-            let methKey = 'get' + capitalCase;
+			let methKey = 'get' + capitalCase;
 
-            me[methKey] = function() { return this.state[key]; };
-        }
-    }
-    
-    this.state = state;
+			me[methKey] = function() { return this.state[key]; };
+		}
+	}
+	
+	this.state = state;
 };

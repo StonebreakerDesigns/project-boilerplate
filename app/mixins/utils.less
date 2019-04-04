@@ -1,16 +1,16 @@
 /** Utility mixins. */
 
 .intervals(@min, @max, @del, @unit, @rule, @prefix, @suffix: 0) {
-    .create-intervals(@k) when (@k <= @max) {
-        .@{prefix}-@{k} when (@suffix = 0) {
+	.create-intervals(@k) when (@k <= @max) {
+		.@{prefix}-@{k} when (@suffix = 0) {
 			e('@{rule}: @{k}@{unit};');
-        }
-        .@{prefix}-@{k}@{suffix} when not (@suffix = 0) {
-            e('@{rule}: @{k}@{unit};');
-        }
+		}
+		.@{prefix}-@{k}@{suffix} when not (@suffix = 0) {
+			e('@{rule}: @{k}@{unit};');
+		}
 
-        .create-intervals(@k + @del);
-    }
+		.create-intervals(@k + @del);
+	}
 
-    .create-intervals(@min);
+	.create-intervals(@min);
 };

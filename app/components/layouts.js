@@ -16,7 +16,7 @@ class PickyParentComponent extends Component {
 
 class PageErrorLayout extends Component {
 	render({ title, children }) { return (
-		<div id="error-page" class="al-c">
+		<div id="error-page" class="al-c ts">
 			<h1 class="pad-vb">{ title }</h1>
 			<div class="hpad-v">{ children }</div>
 			<div class="hpad-vt">

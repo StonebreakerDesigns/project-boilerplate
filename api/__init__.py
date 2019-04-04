@@ -18,7 +18,7 @@ log = logger(__name__) #	pylint: disable=invalid-name
 
 #	Import endpoints.
 #	pylint: disable=wrong-import-position
-from .domain.users import AuthEndpoint, UserCollectionEndpoint, \
+from .domain.users import AuthResource, UserCollectionEndpoint, \
 	UserInstanceEndpoint, PasswordTokenCollection
 #	pylint: enable=wrong-import-position
 
@@ -29,7 +29,7 @@ create_models()
 application = create_api({ # pylint: disable=invalid-name
 	'/users': UserCollectionEndpoint(),
 	'/users/{id:uuid}': UserInstanceEndpoint(),
-	'/auth': AuthEndpoint(),
+	'/auth': AuthResource(),
 	'/passwd-tokens': PasswordTokenCollection()
 })
 

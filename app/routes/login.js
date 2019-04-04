@@ -56,9 +56,9 @@ class LoginPage extends Component {
 			return;
 		}
 
-		let {context: {fetchAuth, query: { r }}} = this.props;
+		let {context: {fetchAuth, query: {t}}} = this.props;
 		await fetchAuth();
-		history.push(r || config.behaviour.postAuthDest);
+		history.push(t || config.behaviour.postAuthDest);
 	}
 
 	@bound

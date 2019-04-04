@@ -24,6 +24,9 @@ const ROUTING = {
 	'/reset-password/{token}': () => import(
 		/* webpackChunkName: 'reset-password' */  './routes/reset-password'
 	),
+	'/admin/dash': () => import (
+		/* webpackChunkName: 'admin-dash' */ './routes/admin-dash'
+	),
 	//	Special routes.
 	[NOT_FOUND]: () => import(
 		/* webpackChunkName: 'e-missing' */ './routes/errors/not-found'

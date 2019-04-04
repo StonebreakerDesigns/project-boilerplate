@@ -3,10 +3,14 @@ import { Component, h } from 'preact';
 import bound from 'autobind-decorator';
 
 import styled from './style-context';
+import logger from './log';
 import { get, delete_ } from './requests';
 import { AppContext } from './app-context'; 
 import Header from './components/header';
 import style from './app.less';
+
+//	Create a logger.
+const log = logger('app');
 
 /** The root application component. */
 @styled(style)
@@ -28,6 +32,7 @@ class App extends Component {
 		let { status, data } = await get('/auth');
 
 		let user = status == 'success' ? data : null;
+		log.debug('auth state', user);
 		this.setState({ user });
 		return user;
 	}

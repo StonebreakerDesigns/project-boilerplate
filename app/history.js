@@ -12,21 +12,21 @@ const isExternalLink = href => /^http(?:s|):\/\//.test(href);
 *   link. 
 */
 const linkProps = href => {
-    let external = isExternalLink(href);
-    
-    return {
-        href,
-        target: external ? '_blank' : undefined,
-        onClick: event => {
-            if (external) return;
+	let external = isExternalLink(href);
+	
+	return {
+		href,
+		target: external ? '_blank' : undefined,
+		onClick: event => {
+			if (external) return;
 
-            if (event) {
-                event.stopPropagation();
-                event.preventDefault();
-            }
-            history.push(href);
-        }
-    };
+			if (event) {
+				event.stopPropagation();
+				event.preventDefault();
+			}
+			history.push(href);
+		}
+	};
 };
 
 //  Exports.

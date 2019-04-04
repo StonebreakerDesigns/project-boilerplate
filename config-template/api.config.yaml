@@ -4,8 +4,6 @@ development:
   echo_sql: false
 security:
   max_content_length: 25000
-  api_key_header: X-API-Key
-  auth_cookie_key: auth-session
   cookie_secret: not-prod-safe
   session_timeout:
     days: 1
@@ -15,6 +13,10 @@ security:
     allow_all_origins: false
     allow_all_headers: false
     allow_all_methods: false
+client_keys:
+  api_key_header: X-API-Key
+  auth_cookie_key: auth-session
+  visitor_cookie_key: vis-session
 env:
   site_domain: localhost
   site_protocol: http://

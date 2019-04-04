@@ -4,14 +4,15 @@ import { Component, render, h } from 'preact';
 //	Polyfill preact.
 import '../preact-polyfills';
 
-import { NotFound, Unauthorized, Forbidden } from '../errors';
-import resolveRoute from '../router';
+import { NotFound, Unauthorized, Forbidden, SeeOther } from '../errors';
+import resolveRoute, { FORBIDDEN, NOT_FOUND } from '../router';
 import logger from '../log';
 import history from '../history';
 import contextual from '../app-context';
 import { StyleContext } from '../style-context';
 import { get } from '../requests';
 import { App } from '../app';
+import config from '../config';
 
 //	Create a logger.
 const log = logger('client');
@@ -28,6 +29,12 @@ class ClientDriver {
 		history.listen(({pathname}) => this.loadPage(pathname));
 		//	Load initial page.
 		this.loadPage(window.location.pathname);
+
+		//	Maybe attach debug access to window.
+		if (config.development.debug) {
+			window.client = this;
+			window.navigate = route => history.push(route);
+		}
 	}
 
 	/** Parse a query string into a map. */
@@ -61,24 +68,31 @@ class ClientDriver {
 		}
 	}
 
-	/** Call a function with handling of application-canonical errors. */
-	async safeCall(func) {
+	/**
+	*	Call a function with handling of application-canonical errors.
+	*	Returns true if a error was caught and handled.
+	*/
+	async safeCall(route, func) {
 		try {
 			return await func();
 		}
 		catch (ex) {
 			log.debug('safeCall caught: ', ex);
 			if (ex instanceof NotFound) {
-				loadPage('/--not-found--');
-				return;
+				this.loadPage(NOT_FOUND);
+				return true;
 			}
 			if (ex instanceof Unauthorized) {
-				history.push('/login');
-				return;
+				history.push('/login?t=' + route);
+				return true;
 			}
 			if (ex instanceof Forbidden) {
-				loadPage('/--forbidden--');
-				return;
+				this.loadPage(FORBIDDEN);
+				return true;
+			}
+			if (ex instanceof SeeOther) {
+				history.push(ex.dest);
+				return true;
 			}
 			
 			throw ex;
@@ -132,10 +146,23 @@ class ClientDriver {
 
 	/** Load the page at the given route. */
 	async loadPage(route) {
+		log.info('load route', route);
+
 		//	Resolve the route.
 		let user, { 
 			data, dataProvider, authCheck, metadata, component, templated
 		} = await resolveRoute(route);
+
+		//	XXX: With data-backed pages on initial load, we need to properly 
+		//		handle data access failures. Note this is an edge case because
+		//		data-backing pages is done for SEO (=> open content).
+		
+		//	Maybe run auth check.
+		if (authCheck) {
+			if (await this.safeCall(route, async () => (
+				authCheck(this.initialPage ? window.user : this.app.state.user)
+			))) return;
+		}
 	
 		//	Maybe run the data provider and/or auth check.
 		if (this.initialPage) {
@@ -151,21 +178,15 @@ class ClientDriver {
 			}
 		}
 		else {
-			//	We can't rely on the server anymore, its injected data isn't
+			//	We can't rely on the server anymore - the injected data isn't
 			//	current.
-
-			//	Maybe run auth check.
-			if (authCheck) {
-				await this.safeCall(async () => (
-					authCheck(this.app.state.user)
-				));
-			}
 
 			//	Maybe run data provider.
 			if (dataProvider) {
-				let provided = await this.safeCall(async () => (
+				let provided = await this.safeCall(route, async () => (
 					await dataProvider(templated, fetch)
 				));
+				if (provided === true) return;
 	
 				//	Use provided.
 				if (provided.data) data = provided.data;

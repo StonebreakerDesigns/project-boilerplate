@@ -118,15 +118,12 @@ class Field extends Component {
 	/** Handle an input event on key up. */
 	@bound
 	handleInput(event) {
-		let { parent, validator, clearFormError } = this.props;
+		let { parent, validator } = this.props;
 		if (event.keyCode == 13) {
 			if (parent.submit) parent.submit();
 			return;
 		}
 		let { value } = this.node, error = null;
-
-		//	Clear form error from context if we're in one.
-		if (clearFormError) clearFormError();
 
 		//	Validate.
 		if (validator) error = validator(value, false);
@@ -171,30 +168,10 @@ class Field extends Component {
 *	children an can optionally manage a FormError.
 */
 class FieldContext extends Component {
-	constructor(props) {
-		super(props);
-
-		this.lastExternalError = null;
-
-		this.buildState(a => ({
-			error: a(props.error, 's')
-		}));
-	}
-
-	componentDidUpdate() {
-		let { error } = this.props;
-		if (error != this.lastExternalError) {
-			this.lastExternalError = error;
-			this.setError(error);
-		}
-	}
-
-	render({ parent, children }, { error }) { return (
+	render({ parent, children, error }) { return (
 		<span>
 			{ (typeof error !== 'undefined') && <FormError error={ error }/> }
-			<FieldContextBase.Provider value={{ 
-				parent, clearFormError: this.setError.curry(null)
-			}}>
+			<FieldContextBase.Provider value={{ parent }}>
 				{ children }
 			</FieldContextBase.Provider>
 		</span>

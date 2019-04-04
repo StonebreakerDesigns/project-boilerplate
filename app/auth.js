@@ -1,9 +1,9 @@
 /** Auth. and authz. authorities. */
-import { Forbidden, Unauthorized, SeeOther } from './errors';
+import { Forbidden, Unauthorized } from './errors';
 
 /** Assert no user. */
 const noUser = user => {
-	if (user) throw new SeeOther('/login');
+	if (user) throw new Forbidden();
 };
 
 /** Assert any user. */
@@ -13,7 +13,7 @@ const anyUser = user => {
 
 /** Return an authority that asserts there is a user of the given type. */
 const userOfType = requiredType => user => {
-	if (!user) throw new SeeOther('/login');
+	if (!user) throw new Unauthorized();
 	if (user.type != requiredType) throw new Forbidden();
 };
 

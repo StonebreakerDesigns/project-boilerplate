@@ -7,7 +7,7 @@ from traceback import format_exception
 from falcon_cors import CORS as CORSPolicy
 from falcon_multipart.middleware import MultipartMiddleware
 
-from .errors import InternalServerError
+from .errors import InternalServerError, NotFound
 from .config import config
 from .log import logger
 from .expectation import ExpectationMiddleware
@@ -21,17 +21,17 @@ SUCCESS_STATUS_MAP = {
 	202: '202 Accepted'
 }
 
-class IntStatusMiddleware:
-	'''A middleware that allows pure integers to be used as success status
-	codes by responders.'''
+class InvariantMiddleware:
+	'''A middleware that enforces some I/O invariants.'''
 
 	def process_response(self, req, resp, resource, succeeded):
-		'''Convert int success status codes to strings.'''
-		#	Ensure there's anything to do.
-		if not succeeded or not isinstance(resp.status, int):
-			return
+		'''Enforce invariants.'''
+		if not resource:
+			raise NotFound()
 
-		resp.status = SUCCESS_STATUS_MAP[resp.status]
+		#	Convert int success status codes to strings.
+		if succeeded and isinstance(resp.status, int):
+			resp.status = SUCCESS_STATUS_MAP[resp.status]
 
 def create_api(routing, routing_converters=None):
 	'''Create, configure, populate and return a falcon API object.
@@ -41,6 +41,8 @@ def create_api(routing, routing_converters=None):
 	:param routing_converters: A map of route-converter keys to converter
 	objects. See the falcon documentation for more about in-route variable
 	conversion.'''
+	from .domain.analytics import VisitorWatchMiddleware
+
 	#	Configure CORS.
 	cors_policy = CORSPolicy(
 		**config.security.cors_policy.__data # pylint: disable=protected-access
@@ -48,11 +50,11 @@ def create_api(routing, routing_converters=None):
 	#	Create an application.
 	application = falcon.API(middleware=list((
 		cors_policy.middleware,
-		IntStatusMiddleware(),
-		ExpectationMiddleware(),
+		InvariantMiddleware(),
 		SecureCookieMiddleware(),
 		MultipartMiddleware(),
-		JSONMiddleware()
+		JSONMiddleware(),
+		VisitorWatchMiddleware()
 	)))
 
 	#	Create a root logger.

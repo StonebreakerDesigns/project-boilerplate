@@ -13,6 +13,7 @@ from ..db import Model, Column, PrimaryKeyColumn, ForeignKeyColumn, DateTime, \
 	relationship, get_error_description, query_and, with_session, \
 	contains_eager, dictize_attrs
 from ..emails import send_email
+from .analytics import VISITOR_ID_CTX_KEY
 
 #	Define the set of allowed user types.
 ALLOWED_USER_TYPES = ('basic', 'admin')
@@ -70,17 +71,17 @@ class User(Model):
 	'''A user.'''
 	#	Describe table.
 	#	pylint: disable=bad-continuation, bad-whitespace
-	__tablename__       = 'users'
-	id                  = PrimaryKeyColumn()
-	type                = Column(Enum(
+	__tablename__	    = 'users'
+	id				    = PrimaryKeyColumn()
+	type			    = Column(Enum(
 							*ALLOWED_USER_TYPES, name='user_types'
 						  ), nullable=False, default='basic')
-	email_address       = Column(EmailType(), unique=True, nullable=False)
-	password            = Column(PasswordType(Text, \
+	email_address	    = Column(EmailType(), unique=True, nullable=False)
+	password			= Column(PasswordType(Text, \
 							schemes=('pbkdf2_sha512',)), nullable=False)
-	api_key             = Column(UUID(as_uuid=True), nullable=False,
+	api_key			    = Column(UUID(as_uuid=True), nullable=False,
 						  	default=uuid.uuid4)
-	created_at          = Column(DateTime, nullable=False,
+	created_at		    = Column(DateTime, nullable=False,
 							default=datetime.now)
 	#	pylint: enable=bad-continuation, bad-whitespace
 
@@ -92,9 +93,7 @@ class User(Model):
 	def get_for_session_key(cls, key, sess):
 		'''Return the user associated with the given non-expired session `key`
 		or `None`.'''
-		user_session = sess.query(UserSession).options(
-			contains_eager(UserSession.user)
-		).filter(query_and(
+		user_session = sess.query(UserSession).filter(query_and(
 			UserSession.key == key,
 			UserSession.where_current()
 		)).first()
@@ -122,7 +121,7 @@ class User(Model):
 		'''Return the user currently authenticated for the given `req` or
 		`None`.'''
 		#	Try API key authentication.
-		api_key = req.get_header(config.security.api_key_header)
+		api_key = req.get_header(config.client_keys.api_key_header)
 		if api_key:
 			#	Try to cast.
 			try:
@@ -138,7 +137,7 @@ class User(Model):
 			return user
 
 		#	Retrieve the authentication token and assert it exists.
-		auth_tkn = req.cookies.get(config.security.auth_cookie_key)
+		auth_tkn = req.cookies.get(config.client_keys.auth_cookie_key)
 		if auth_tkn:
 			#	Retrieve and return the user or `None`.
 			return cls.get_for_session_key(auth_tkn, sess)
@@ -153,8 +152,8 @@ class User(Model):
 		sess.add(user_session)
 
 		resp.set_cookie(
-			config.security.auth_cookie_key, str(user_session.key),
-			secure=not config.development.debug
+			config.client_keys.auth_cookie_key, str(user_session.key),
+			secure=not config.development.debug, path='/'
 		)
 
 	def dictize(self, user): #	pylint: disable=unused-argument
@@ -176,13 +175,13 @@ class UserSession(Model):
 	#	Describe table.
 	#	pylint: disable=bad-continuation, bad-whitespace
 	__tablename__   = 'user_sessions'
-	key             = PrimaryKeyColumn()
-	expiry          = Column(DateTime(), nullable=False, \
+	key			 = PrimaryKeyColumn()
+	expiry		  = Column(DateTime(), nullable=False, \
 						default=_session_timeout_generator)
-	user_id         = ForeignKeyColumn('users.id', nullable=False)
-	canceled        = Column(Boolean(), nullable=False, default=lambda: False)
+	user_id		 = ForeignKeyColumn('users.id', nullable=False)
+	canceled		= Column(Boolean(), nullable=False, default=lambda: False)
 	#	Relationships.
-	user            = relationship('User', lazy='joined')
+	user			= relationship('User', lazy='joined')
 	#	pylint: enable=bad-continuation, bad-whitespace
 
 	def __init__(self, user_id):
@@ -213,13 +212,13 @@ class PasswordResetToken(Model):
 	#	Describe table.
 	#	pylint: disable=bad-continuation, bad-whitespace
 	__tablename__   = 'password_reset_tokens'
-	key             = PrimaryKeyColumn()
-	expiry          = Column(DateTime(), nullable=False, \
+	key			    = PrimaryKeyColumn()
+	expiry		    = Column(DateTime(), nullable=False, \
 						default=_password_reset_timeout_generator)
-	user_id         = ForeignKeyColumn('users.id', nullable=False)
-	used            = Column(Boolean, nullable=False, default=False)
+	user_id		    = ForeignKeyColumn('users.id', nullable=False)
+	used			= Column(Boolean, nullable=False, default=False)
 	#	Relationships.
-	user            = relationship('User')
+	user			= relationship('User')
 	#	pylint: enable=bad-continuation, bad-whitespace
 
 	def __init__(self, user_id):
@@ -308,7 +307,7 @@ class UserInstanceEndpoint:
 
 			raise UnprocessableEntity(message=desc) from None
 
-class AuthEndpoint:
+class AuthResource:
 	'''The authentication endpoint for inspection, login, and logout.'''
 
 	@with_session
@@ -316,6 +315,10 @@ class AuthEndpoint:
 		'''Return a JSON playload that describes the currently authenticated
 		user under its "user" key.'''
 		user = User.get_authenticated(req, sess)
+
+		#	Maybe include visitor session.
+		if req.params.get('wvid'):
+			resp.json_metadata = {'vid': req.context[VISITOR_ID_CTX_KEY]}
 
 		if user:
 			#	Return a representation of the user.
@@ -333,8 +336,8 @@ class AuthEndpoint:
 			raise Unauthorized(message="You're already logged in")
 
 		#	Assert user exists and password is valid.
-		user = User.get_by_email_address(req.json['email_address'], sess)
-		if not user or user.password != req.json['password']:
+		user = User.get_by_email_address(req.json[('email_address', str)], sess)
+		if not user or user.password != req.json[('password', str)]:
 			raise Unauthorized(message="Incorrect username or password")
 
 		#	Authorize a new session.
@@ -345,7 +348,7 @@ class AuthEndpoint:
 	def on_delete(self, req, resp, sess):
 		'''Delete the current authentication session (i.e. log out).'''
 		#	Retrieve the session key and assert it exists.
-		cookie_key = config.security.auth_cookie_key
+		cookie_key = config.client_keys.auth_cookie_key
 		auth_tkn = req.cookies.get(cookie_key)
 		if not auth_tkn:
 			raise Unauthorized()

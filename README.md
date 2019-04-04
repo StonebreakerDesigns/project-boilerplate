@@ -1,47 +1,55 @@
-# Stonebreaker's boilerplate
+# Stonebreakers' Web Boilerplate
 
-This is the boilerplate for Stonebreaker's setup of choice for building modern
-web applications. It's built on the following stack:
+This is our setup of choice for building websites and -applications.
 
-* Database
-	* Postgres
-* API layer
-	* SQLAlchemy
-	* falcon
-* Presentation layer
-	* Jinja2 (for emails)
-	* express (isomorphic service)
-	* preact
-	* LESS
-* Build tools
-	* Babel
-	* Webpack
-	* Gulp
-* Linters
-	* pylint
-	* eslint
+It works like this:
 
-## Repo setup
+```
++----------+   Web server
+| Postgres |       ||
++----------+       ||
+     |             ||
++------------+     ||
+| Python API | --- || ------ + ----> API consumers
++------------+     ||        |
+     |             ||        |
++------------+     ||     +------------+
+| Preact app | --- || --- | Preact app |
+| (server)   |     ||     | (client)   |
++------------+     ||     +------------+
+```
 
-This repository is organized into 4 main sections:
+It is:
 
-* `./api` - The Python API.
-	* The `./domain` package is for domain models, logic, and endpoints.
-* `./app` - The isomorphic JavaScript application.
-	* The `./components` package is for reusable components.
-	* The `./routes` package is for pages.
-* `./config` - Share configuration storage.
-* `./static` - Static presentation layer assets. 
+* very low friction / cost
+* SEO friendly
+* Google Analytics ready
+* Preset with a solid foundation including users & accounts
+
+## Packaging
+
+* `./api` - The business and data layers as a Python API
+* `./app` - The presentation layer as an isomorphic, React-esq JavaScript application
+* `./config-templates` - Configuration templates
+* `./static` - Static presentation layer assets
+* `./etc` - Everything else & more
 
 ## Installation
 
-`npm install`
+To get started, you'll need Python 3, Pip, Node, npm, and Postgres.
 
-`pip install -r requirements.txt`
+```bash
+git clone <this repo>
+# De-template configuration
+cp -r ./config-templates ./config
 
-Setup the Database 
-`py -3 .\etc\write_setup_sql.py | psql --username=postgres`
+# Install packages
+npm i --save-dev
+pip3 install -r requirements.txt
 
-`npm start`
+# Initialize your database
+python3 etc/write_setup_sql.py | sudo -u postgres psql
 
-You may need to specify port or python version in `package.json`
+# Run it!
+npm start
+```

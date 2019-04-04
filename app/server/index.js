@@ -10,7 +10,7 @@ import '../preact-polyfills';
 
 import config from './server-config';
 import logger from '../log';
-import { NotFound, SeeOther, Forbidden } from '../errors';
+import { NotFound, SeeOther, Forbidden, Unauthorized } from '../errors';
 import resolveRoute, { NOT_FOUND, FORBIDDEN, SERVER_ERROR } from '../router';
 import { HTMLDocument } from './document';
 
@@ -43,14 +43,18 @@ class ServerMiddlware {
 	getAuthFor(req) {
 		return new Promise((resolve, reject) => {
 			//	Proxy the cookies to the API to retrieve auth. status.
-			request(config.env.apiAccess + config.env.authCheckRoute, {
+			request(config.env.apiAccess + config.env.userAccessRoute, {
 				json: true, headers: {'Cookie': req.header('Cookie')}
 			}, (err, resp, body) => {
 				if (err) { reject(err); return; }
 		
-				let { status, data } = body;
+				let { status, data, vid } = body;
 				log.info('proxy auth status: ' + status);
-				resolve(status == 'success' ? data : null);
+				
+				let user = status == 'success' ? data : null,
+					setCookie = resp.headers['set-cookie'];
+
+				resolve({ user, setCookie, vid });
 			});
 		});
 	}
@@ -88,19 +92,26 @@ class ServerMiddlware {
 		}
 		catch (ex) {
 			if (ex instanceof NotFound) {
-				await serveDocument(NOT_FOUND, req, resp);
-				return;
+				await this.serveDocument(NOT_FOUND, req, resp);
+				return HANDLED_WITH_DOCUMENT;
+			}
+			if (ex instanceof Unauthorized) {
+				resp.status(303).set({
+					'Content-Type': 'text/plain',
+					'Location': '/login?t=' + req.path
+				}).send('Please log in first');
+				return HANDLED_WITH_DOCUMENT;
 			}
 			if (ex instanceof SeeOther) {
 				resp.status(303).set({
 					'Content-Type': 'text/plain',
 					'Location': ex.dest
 				}).send('See ' + ex.dest);
-				return;
+				return HANDLED_WITH_DOCUMENT;
 			}
 			if (ex instanceof Forbidden) {
-				await serveDocument(FORBIDDEN, req, resp);
-				return;
+				await this.serveDocument(FORBIDDEN, req, resp);
+				return HANDLED_WITH_DOCUMENT;
 			}
 
 			throw ex;
@@ -117,7 +128,7 @@ class ServerMiddlware {
 		log.debug('serveDocument @', route, '-> status', status || 200);
 		
 		//	Retrieve current user.
-		let user = await this.getAuthFor(req);
+		let { user, setCookie, vid } = await this.getAuthFor(req);
 		//	Maybe run the auth. check.
 		if (authCheck) {
 			//	XXX: Unnessesary await/async is required?
@@ -151,13 +162,14 @@ class ServerMiddlware {
 		//	Create the document.
 		let document = new HTMLDocument({
 			route, query: req.query, templated, component, 
-			data, metadata, user
+			data, metadata, user, vid
 		});
 		
 		//	Respond.
-		resp.status(status).set({
-			'Content-Type': 'text/html; charset=utf-8'
-		}).send('<!DOCTYPE html>' + document.render());
+		let headers = {'Content-Type': 'text/html; charset=utf-8'};
+		if (setCookie) headers['Set-Cookie'] = setCookie;
+		log.info(route, '->', status);
+		resp.status(status).set(headers).send('<!DOCTYPE html>' + document.render());
 	};
 
 	/** The middleware handler. */
@@ -168,7 +180,7 @@ class ServerMiddlware {
 		catch (ex) {
 			log.critical(ex.stack);
 			try {
-				await serveDocument(SERVER_ERROR, req, resp);
+				await this.serveDocument(SERVER_ERROR, req, resp);
 			}
 			catch (nextEx) {
 				log.critical('Double wammy!');

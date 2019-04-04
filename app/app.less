@@ -68,6 +68,7 @@ p {
 //	Primitives.
 .button {
 	position: relative;
+	display: inline-block;
 	border: none; outline: none;
 	background-color: inherit;
 	text-decoration: none;
@@ -79,9 +80,14 @@ p {
 		padding: @space/2 @space;
 		border-radius: @corners;
 		font-size: @text-size;
+
+		&.light {
+			background-color: @white;
+			color: @near-black;
+		}
 	}
 	
-	.icon { 
+	.icon {
 		color: @near-white;
 		margin-right: @space/2;
 	}

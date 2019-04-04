@@ -21,7 +21,7 @@ class HeaderUserPanel extends Component {
 	}
 
 	render({ context: { user } }) { return (
-		<div id="user-panel" class="ilb w-50pct al-r pad">{ user ?
+		<div id="user-panel" class="ilb w-50pct al-r pad-h">{ user ?
 			<span>
 				<div class="ilb mar-hr sm-t l-tc">
 					{ user.email_address }
@@ -34,7 +34,7 @@ class HeaderUserPanel extends Component {
 					Not logged in
 				</div>
 				<Link label="Log in" href="/login" class="button"/>
-				<Link label="Sign up" href="/signup" class="button"/>
+				<Link label="Sign up" href="/signup" class="button light"/>
 			</span>
 		}</div>
 	); }
